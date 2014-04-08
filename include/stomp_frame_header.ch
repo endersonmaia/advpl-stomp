@@ -1,0 +1,8 @@
+#ifndef _STOMP_FRAME_HEADER_CH
+#define _STOMP_FRAME_HEADER_CH
+
+// GENERAL
+#define ACCEPTED_VERSIONS       	"1.1,1.2"
+#define STOMP_HEADERS_COUNT_LIMIT	"10"
+
+#endif

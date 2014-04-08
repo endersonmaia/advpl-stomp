@@ -1,12 +1,17 @@
 #include "stomp.ch"
 
+#ifdef __HARBOUR__ 
 PROCEDURE main()
+#else
+USER FUNCTION stomp_test
+#endif
 
-  oStomp := StompMessage:new('localhost')
+  oStomp := StompFrame():new()
+  oStomp:setType('CONNECT')
   #ifdef __HARBOUR__
-  ? oStomp:connect()
+  ? oStomp:cType
   #else
-  ALERT(oStomp:connect())
+  ALERT(oStomp:cType)
   #endif 
 
 RETURN
