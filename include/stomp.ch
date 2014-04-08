@@ -30,4 +30,8 @@
 #define STOMP_SRV_RECEIPT       "RECEIPT"+CHR_CRLF
 #define STOMP_SRV_ERROR         "ERROR"+CHR_CRLF
 
+// GENERAL
+
+#define ACCEPTED_VERSIONS       "1.1,1.2"
+
 #endif

@@ -1,6 +1,29 @@
+#ifdef __HARBOUR__
+  #include "hbclass.ch"
+#else
+  #include "totvs.ch"
+#endif
+
 #include "stomp.ch"
 
-FUNCTION stomp_connect(cAcceptVersion, cHost)
+CLASS StompMessage
+
+DATA cHost
+DATA cAcceptVersions
+DATA cLogin
+DATA cPassword
+
+METHOD new() CONSTRUCTOR
+METHOD connect()
+
+ENDCLASS
+
+METHOD new(cHost)
+  ::cHost := cHost
+  ::cAcceptVersions = ACCEPTED_VERSIONS
+RETURN SELF
+
+METHOD connect() CLASS StompMessage
 
   local cConnect
   

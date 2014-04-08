@@ -2,6 +2,7 @@
 
 PROCEDURE MAIN()
 
-? stomp_connect("1.1,1.2", "localhost")
+  oStomp = StompMessage:new()
+?  oStomp:connect("localhost")
 
 RETURN
