@@ -8,19 +8,21 @@
 
 CLASS StompMessage
 
-DATA cHost
-DATA cAcceptVersions
-DATA cLogin
-DATA cPassword
+  DATA cHost 
+  DATA cAcceptVersions
+  DATA cLogin
+  DATA cPassword
 
-METHOD new() CONSTRUCTOR
-METHOD connect()
+  METHOD new(cHost) CONSTRUCTOR
+  METHOD connect()
 
 ENDCLASS
 
-METHOD new(cHost)
+METHOD new(cHost) CLASS StompMessage
+
   ::cHost := cHost
-  ::cAcceptVersions = ACCEPTED_VERSIONS
+  ::cAcceptVersions := ACCEPTED_VERSIONS
+
 RETURN SELF
 
 METHOD connect() CLASS StompMessage
@@ -28,7 +30,7 @@ METHOD connect() CLASS StompMessage
   local cConnect
   
   cConnect := STOMP_CLI_CONNECT
-  cConnect += "accept-version:"+cAcceptVersion+CHR_CRLF
-  cCOnnect += "host:"+cHost+CHR_CRLF
+  cConnect += "accept-version:"+::cAcceptVersion+CHR_CRLF
+  cCOnnect += "host:"+::cHost+CHR_CRLF
 
 RETURN cConnect

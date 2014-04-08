@@ -1,8 +1,12 @@
 #include "stomp.ch"
 
-PROCEDURE MAIN()
+PROCEDURE main()
 
-  oStomp = StompMessage:new()
-?  oStomp:connect("localhost")
+  oStomp := StompMessage:new('localhost')
+  #ifdef __HARBOUR__
+  ? oStomp:connect()
+  #else
+  ALERT(oStomp:connect())
+  #endif 
 
 RETURN
