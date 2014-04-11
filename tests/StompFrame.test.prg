@@ -15,7 +15,7 @@ CLASS TTestStompFrame INHERIT TTestCase
 ENDCLASS
 
 METHOD Setup() CLASS TTestStompFrame
-	::oStompFrame := StompFrame():new()
+	::oStompFrame := TStompFrame():new()
   RETURN ( NIL )
 
 METHOD Teardown() CLASS TTestStompFrame
@@ -41,7 +41,7 @@ METHOD testSetCommand() CLASS TTestStompFrame
 METHOD testAddHeader() CLASS TTestStompFrame
   LOCAL oHeader
 
-  oHeader := StompFrameHeader():new( 'name', 'value' )
+  oHeader := TStompFrameHeader():new( 'name', 'value' )
   ::oStompFrame:addHeader( oHeader )
 
   AssertEquals('name', ::oStompFrame:aHeaders[1]:cName, 'oHeader:cName should be name')
@@ -55,11 +55,11 @@ METHOD testCountHeaders() CLASS TTestStompFrame
 
   AssertEquals(0, ::oStompFrame:countHeaders(), 'StompFrame:countHeaders() should return 0 (zero) when no headers is addes to StompFrame')
 
-  oHeader := StompFrameHeader():new( 'name', 'value' )
+  oHeader := TStompFrameHeader():new( 'name', 'value' )
   ::oStompFrame:addHeader( oHeader )
   AssertEquals(1, ::oStompFrame:countHeaders(), 'StompFrame:countHeaders() should return 1 (one)')
 
-  oHeader := StompFrameHeader():new( 'other', 'value' )
+  oHeader := TStompFrameHeader():new( 'other', 'value' )
   ::oStompFrame:addHeader(oHeader)
   AssertEquals(2, ::oStompFrame:countHeaders(), 'StompFrame:countHeaders() should return 2 (two)')
 

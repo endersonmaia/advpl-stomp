@@ -6,14 +6,14 @@
 
 #include "stomp.ch"
 
-CLASS StompFrameBuilder
+CLASS TStompFrameBuilder
 
 METHOD connect()
 METHOD formatHeader()
 
 ENDCLASS
 
-METHOD connect() CLASS StompFrameBuilder
+METHOD connect() CLASS TStompFrameBuilder
 
   local cConnect
   
@@ -23,7 +23,7 @@ METHOD connect() CLASS StompFrameBuilder
 
 RETURN cConnect
 
-METHOD formatHeader(cName, cValue) CLASS StompFrameBuilder
+METHOD formatHeader(cName, cValue) CLASS TStompFrameBuilder
   local cHeader
   
   cHeader := cName+':'+cValue+CHR_CRLF

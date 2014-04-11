@@ -6,7 +6,7 @@
 
 #include "stomp_frame_header.ch"
 
-CLASS StompFrameHeader
+CLASS TStompFrameHeader
 
   DATA cName
   DATA cValue
@@ -15,7 +15,7 @@ CLASS StompFrameHeader
 
 ENDCLASS
 
-METHOD new( cName, cValue ) CLASS StompFrameHeader
+METHOD new( cName, cValue ) CLASS TStompFrameHeader
   ::cName := cName
   ::cValue := cValue
 RETURN SELF

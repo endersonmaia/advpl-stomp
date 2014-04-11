@@ -6,7 +6,7 @@
 
 #include "stomp.ch"
 
-CLASS StompFrame
+CLASS TStompFrame
 
   DATA cCommand READONLY
   DATA aHeaders INIT {} READONLY
@@ -30,29 +30,29 @@ CLASS StompFrame
   
 ENDCLASS
 
-METHOD new() CLASS StompFrame 
+METHOD new() CLASS TStompFrame 
   RETURN SELF
 
-METHOD setCommand( cCommand ) CLASS StompFrame
+METHOD setCommand( cCommand ) CLASS TStompFrame
 
   ::cCommand := cCommand
 
   RETURN ( NIL )
 
-METHOD setBody( cBody ) CLASS StompFrame
+METHOD setBody( cBody ) CLASS TStompFrame
   
   ::cBody := cBody
 
   RETURN ( NIL )
 
-METHOD validateCommand() CLASS StompFrame
+METHOD validateCommand() CLASS TStompFrame
   RETURN .T.
 
-METHOD validateHeader() CLASS StompFrame
+METHOD validateHeader() CLASS TStompFrame
   RETURN .T.
 
-METHOD validateBody() CLASS StompFrame
+METHOD validateBody() CLASS TStompFrame
   RETURN .T.
 
-METHOD isValid() CLASS StompFrame
+METHOD isValid() CLASS TStompFrame
   RETURN .T.
