@@ -8,8 +8,8 @@
 
 CLASS StompFrameHeader
 
-  DATA cName READONLY
-  DATA cValue READONLY
+  DATA cName
+  DATA cValue
 
   METHOD new( cName, cValue ) CONSTRUCTOR
 

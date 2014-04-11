@@ -9,21 +9,21 @@
 CLASS StompFrame
 
   DATA cCommand READONLY
-  DATA aHeaders INIT ARRAY(1) READONLY
+  DATA aHeaders INIT {} READONLY
   DATA cBody READONLY
-  
+    
   CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
-  CLASSDATA nHeaderCount INIT 1
 
   METHOD new() CONSTRUCTOR
 
   // Content
   METHOD setCommand( cCommand )
-  METHOD addHeader( cName, cValue )
   METHOD setBody( cBody )
+  METHOD addHeader( oStompFrameHeader ) INLINE AADD( ::aHeaders, oStompFrameHeader )
+  METHOD countHeaders() INLINE LEN( ::aHeaders )
 
   // Validations
-  METHOD validateType()
+  METHOD validateCommand()
   METHOD validateHeader()
   METHOD validateBody()
   METHOD isValid()
@@ -39,23 +39,13 @@ METHOD setCommand( cCommand ) CLASS StompFrame
 
   RETURN ( NIL )
 
-METHOD addHeader( cName, cValue ) CLASS StompFrame
-
-  LOCAL oHeader := StompFrameHeader():new( cName, cValue )
-  
-  ASIZE(::aHeaders, ::nHeaderCount)
-  ::aHeaders[::nHeaderCount] := oHeader
-  ::nHeaderCount++
- 
-  RETURN ( NIL )
-
 METHOD setBody( cBody ) CLASS StompFrame
   
   ::cBody := cBody
 
   RETURN ( NIL )
 
-METHOD validateType() CLASS StompFrame
+METHOD validateCommand() CLASS StompFrame
   RETURN .T.
 
 METHOD validateHeader() CLASS StompFrame

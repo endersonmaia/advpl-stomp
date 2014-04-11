@@ -1,4 +1,4 @@
--inc
+#-inc
 -L./
 -lxhunit
 -lxhb
