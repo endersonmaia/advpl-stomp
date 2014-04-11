@@ -2,7 +2,7 @@
 #define _STOMP_FRAME_HEADER_CH
 
 // GENERAL
-#define ACCEPTED_VERSIONS       	"1.1,1.2"
-#define STOMP_HEADERS_COUNT_LIMIT	"10"
+#define STOMP_ACCEPTED_VERSIONS_HEADER_NAME			"accepted-versions"
+#define STOMP_ACCEPTED_VERSIONS_HEADER_VALUE       	"1.0,1.1,1.2"
 
 #endif

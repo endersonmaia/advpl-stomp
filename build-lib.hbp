@@ -1,0 +1,7 @@
+-inc
+-incpath=./include
+-hblib
+-ohbstomp
+./lib/StompFrameBuilder.class.prg
+./lib/StompFrame.class.prg
+./lib/StompFrameHeader.class.prg

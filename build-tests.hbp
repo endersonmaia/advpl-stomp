@@ -1,0 +1,8 @@
+-inc
+-L./
+-lxhunit
+-lxhb
+-lhbstomp
+-oall_tests
+tests/StompFrame.test.prg
+tests/AllTestSuite.test.prg
