@@ -1,6 +1,6 @@
 #-inc
 -L./
--lxhunit
+-lhbunit
 -lxhb
 -lhbstomp
 -oall_tests
