@@ -1,7 +1,7 @@
-#-inc
+-inc
 -L./
--lhbunit
 -lxhb
+-lhbunit
 -lhbstomp
 -oall_tests
 tests/StompFrame.test.prg
