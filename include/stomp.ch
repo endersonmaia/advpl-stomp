@@ -1,6 +1,12 @@
 #ifndef _STOMP_CH
 #define _STOMP_CH
 
+#ifdef __HARBOUR__
+  #include "hbclass.ch"
+#else
+  #include "totvs.ch"
+#endif
+
 #include "stomp_frame.ch"
 #include "stomp_frame_header.ch"
 

@@ -1,16 +1,10 @@
-#ifdef __HARBOUR__
-#include "hbclass.ch"
-#else
-#include "totvs.ch"
-#endif
-
 #include "stomp.ch"
 
 CLASS TStompFrame
 
-  DATA cCommand READONLY
+  DATA cCommand INIT "" READONLY
   DATA aHeaders INIT {} READONLY
-  DATA cBody READONLY
+  DATA cBody INIT "" READONLY
     
   CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
 
@@ -23,19 +17,18 @@ CLASS TStompFrame
   METHOD addHeader( oStompFrameHeader )
   METHOD countHeaders()
 
-  PROTECTED:
     // Validations
-    METHOD validateCommand()
-    METHOD validateHeader()
-    METHOD validateBody()
-    METHOD isValid()
+  METHOD validateCommand()
+  METHOD validateHeader()
+  METHOD validateBody()
+  METHOD isValid()
   
 ENDCLASS
 
 METHOD countHeaders() CLASS TStompFrame
   RETURN ( LEN( ::aHeaders ) )
 
-METHOD new() CLASS TStompFrame 
+METHOD new() CLASS TStompFrame
   RETURN SELF
   
 METHOD addHeader ( oStompFrameHeader ) CLASS TStompFrame
@@ -55,12 +48,11 @@ METHOD setBody( cBody ) CLASS TStompFrame
   RETURN ( NIL )
 
 METHOD validateCommand() CLASS TStompFrame
+  LOCAL lReturn := .T.
   
-  //SWITCH ::cCommand
-  //  OTHERWISE;      RETURN .F.
-  //END
-
-  RETURN .T.
+  IIF( ::cCommand == "", lReturn := .F., )
+  
+  RETURN ( lReturn )
 
 METHOD validateHeader() CLASS TStompFrame
   RETURN .T.
@@ -71,8 +63,9 @@ METHOD validateBody() CLASS TStompFrame
 METHOD isValid() CLASS TStompFrame
   RETURN .T.
 
+
 METHOD build() CLASS TStompFrame
-  LOCAL cStompFrame := "", i := 0
+  LOCAL cStompFrame := "", i
 
   IF !::isValid()
     RETURN ( .F. )

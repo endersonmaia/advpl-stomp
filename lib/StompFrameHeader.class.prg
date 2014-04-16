@@ -1,10 +1,4 @@
-#ifdef __HARBOUR__
-  #include "hbclass.ch"
-#else
-  #include "totvs.ch"
-#endif
-
-#include "stomp_frame_header.ch"
+#include "stomp.ch"
 
 CLASS TStompFrameHeader
 
