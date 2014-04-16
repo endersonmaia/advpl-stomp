@@ -1,6 +1,11 @@
--inc
+xhb.hbc
 -incpath=./include
 -hblib
 -ohbstomp
 ./lib/StompFrame.class.prg
 ./lib/StompFrameHeader.class.prg
+./lib/StompSocket.class.prg
+./lib/StompSocketHarbour.class.prg
+./lib/StompSocketADVPL.class.prg
+./lib/StompClient.class.prg
+./lib/StompFrameBuilder.class.prg

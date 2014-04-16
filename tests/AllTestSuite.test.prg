@@ -3,7 +3,8 @@ FUNCTION main()
   LOCAL oRunner := TTextRunner():New()
   LOCAL oSuite := TTestSuite():New()
 
-  oSuite:AddTest( TTestStompFrame():New() )
+  oSuite:AddTest( TTestStompFrame():new() )
+  oSuite:AddTest( TTestStompFrameBuilder():new() )
 
   oRunner:Run( oSuite )
 
