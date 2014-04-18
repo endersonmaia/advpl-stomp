@@ -5,7 +5,7 @@ CLASS TStompFrame
   DATA cCommand INIT "" READONLY
   DATA aHeaders INIT {} READONLY
   DATA cBody INIT "" READONLY
-    
+
   CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
 
   METHOD new() CONSTRUCTOR
@@ -22,7 +22,8 @@ CLASS TStompFrame
   METHOD validateHeader()
   METHOD validateBody()
   METHOD isValid()
-  
+  METHOD headerExists( cHeaderName )
+
 ENDCLASS
 
 METHOD countHeaders() CLASS TStompFrame
@@ -30,7 +31,7 @@ METHOD countHeaders() CLASS TStompFrame
 
 METHOD new() CLASS TStompFrame
   RETURN SELF
-  
+
 METHOD addHeader ( oStompFrameHeader ) CLASS TStompFrame
   AADD( ::aHeaders, oStompFrameHeader )
   RETURN ( NIL )
@@ -42,26 +43,66 @@ METHOD setCommand( cCommand ) CLASS TStompFrame
   RETURN ( NIL )
 
 METHOD setBody( cBody ) CLASS TStompFrame
-  
+
   ::cBody := cBody
 
   RETURN ( NIL )
 
 METHOD validateCommand() CLASS TStompFrame
-  LOCAL lReturn := .T.
-  
-  IIF( ::cCommand == "", lReturn := .F., )
-  
+  LOCAL lReturn := .F.
+
+  SWITCH ::cCommand
+  CASE "SEND"
+  CASE "SUBSCRIBE"
+  CASE "UNSUBSCRIBE"
+  CASE "BEGIN"
+  CASE "COMMIT"
+  CASE "ABORT"
+  CASE "ACK"
+  CASE "NACK"
+  CASE "DISCONNECT"
+  CASE "CONNECT"
+  CASE "STOMP"
+    lReturn := .T.
+     EXIT
+  END
+
+  RETURN ( lReturn )
+
+METHOD headerExists( cHeaderName )
+  LOCAL lReturn := .F., i
+
+  FOR i := 1 TO ::countHeaders()
+    IIF( ::aHeaders[i]:cName = cHeaderName, lReturn := .T., )
+  NEXT
+
   RETURN ( lReturn )
 
 METHOD validateHeader() CLASS TStompFrame
-  RETURN .T.
+  LOCAL lReturn := .F.
+
+  SWITCH ::cCommand
+  CASE "CONNECT"
+  CASE "STOMP"
+    IIF ( ( ::headerExists("accept-version") .AND. ::headerExists("host") ), lReturn := .T., )
+  EXIT
+  CASE "SEND"
+    IIF ( ::headerExists("destination"), lReturn := .T., )
+  EXIT
+  END
+
+  RETURN ( lReturn )
 
 METHOD validateBody() CLASS TStompFrame
   RETURN .T.
 
 METHOD isValid() CLASS TStompFrame
-  RETURN .T.
+  LOCAL lReturn := .F.
+
+  lReturn := ::validateCommand()
+  lReturn := ::validateHeader()
+
+  RETURN ( lReturn )
 
 
 METHOD build() CLASS TStompFrame
