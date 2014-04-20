@@ -17,7 +17,7 @@ CLASS TStompFrame
   METHOD addHeader( oStompFrameHeader )
   METHOD countHeaders()
 
-    // Validations
+  // Validations
   METHOD validateCommand()
   METHOD validateHeader()
   METHOD validateBody()
@@ -38,7 +38,7 @@ METHOD addHeader ( oStompFrameHeader ) CLASS TStompFrame
 
 METHOD setCommand( cCommand ) CLASS TStompFrame
 
-  ::cCommand := cCommand
+  ::cCommand := UPPER(cCommand)
 
   RETURN ( NIL )
 
@@ -51,30 +51,14 @@ METHOD setBody( cBody ) CLASS TStompFrame
 METHOD validateCommand() CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  SWITCH ::cCommand
-  CASE "SEND"
-  CASE "SUBSCRIBE"
-  CASE "UNSUBSCRIBE"
-  CASE "BEGIN"
-  CASE "COMMIT"
-  CASE "ABORT"
-  CASE "ACK"
-  CASE "NACK"
-  CASE "DISCONNECT"
-  CASE "CONNECT"
-  CASE "STOMP"
-    lReturn := .T.
-     EXIT
-  END
+  IIF ( ASCAN( ::aStompFrameTypes, { |c| UPPER(c) == UPPER(::cCommand()) } ) > 0, lReturn := .T., )
 
   RETURN ( lReturn )
 
 METHOD headerExists( cHeaderName )
-  LOCAL lReturn := .F., i
+  LOCAL lReturn := .F.
 
-  FOR i := 1 TO ::countHeaders()
-    IIF( ::aHeaders[i]:cName = cHeaderName, lReturn := .T., )
-  NEXT
+  IIF ( ASCAN( ::aHeaders, { |h| h:cName == cHeaderName } ) > 0, lReturn := .T., )
 
   RETURN ( lReturn )
 

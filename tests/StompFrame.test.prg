@@ -38,8 +38,10 @@ METHOD testSetBody() CLASS TTestStompFrame
 METHOD testSetCommand() CLASS TTestStompFrame
 
   ::oStompFrame:setCommand( "CONNECT" )
-
   ::assertEquals( "CONNECT", ::oStompFrame:cCommand,  "cCommand should be CONNECT." )
+
+  ::oStompFrame:setCommand( "send" )
+  ::assertEquals( "SEND", ::oStompFrame:cCommand,  "setCommand('send') should set CONNECT (upper-case)." )
 
   RETURN ( NIL )
 
