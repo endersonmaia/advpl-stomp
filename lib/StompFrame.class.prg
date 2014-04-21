@@ -73,6 +73,19 @@ METHOD validateHeader() CLASS TStompFrame
   CASE "SEND"
     IIF ( ::headerExists("destination"), lReturn := .T., )
   EXIT
+  CASE "SUBSCRIBE"
+    IIF ( ( ::headerExists("destination") .AND. ::headerExists("id") ), lReturn := .T., )
+  EXIT
+  CASE "UNSUBSCRIBE"
+  CASE "ACK"
+  CASE "NACK"
+    IIF ( ::headerExists("id"), lReturn := .T., )
+  EXIT
+  CASE "BEGIN"
+  CASE "COMMIT"
+  CASE "ABORT"
+    IIF ( ::headerExists("transaction"), lReturn := .T., )
+  EXIT
   END
 
   RETURN ( lReturn )
