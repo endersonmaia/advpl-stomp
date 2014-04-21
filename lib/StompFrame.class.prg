@@ -86,18 +86,39 @@ METHOD validateHeader() CLASS TStompFrame
   CASE "ABORT"
     IIF ( ::headerExists("transaction"), lReturn := .T., )
   EXIT
+  CASE "DISCONNECT"
+    lReturn := .T.
+  EXIT
   END
 
   RETURN ( lReturn )
 
 METHOD validateBody() CLASS TStompFrame
-  RETURN .T.
+  LOCAL lReturn := .F.
+
+  SWITCH ::cCommand  
+  CASE "SEND"
+    IIF( !( Empty(::cBody) ), lReturn := .T., )
+  EXIT
+  CASE "SUBSCRIBE"
+  CASE "UNSUBSCRIBE"
+  CASE "BEGIN"
+  CASE "COMMIT"
+  CASE "ABORT"
+  CASE "ACK"
+  CASE "NACK"
+  CASE "DISCONNECT"
+  EXIT
+  END
+
+  RETURN ( lReturn )
 
 METHOD isValid() CLASS TStompFrame
   LOCAL lReturn := .F.
 
   lReturn := ::validateCommand()
   lReturn := ::validateHeader()
+  lReturn := ::validateBody()
 
   RETURN ( lReturn )
 

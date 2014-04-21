@@ -17,6 +17,7 @@ CLASS TTestStompFrame INHERIT TTestCase
   METHOD testValidateCommandAbortHeaders()
   METHOD testValidateCommandAckHeaders()
   METHOD testValidateCommandNackHeaders()
+  METHOD testValidateCommandsMustNotHaveBody()
   METHOD testIsValid()
 
   METHOD Setup()
@@ -223,6 +224,29 @@ METHOD testValidateCommandAbortHeaders() CLASS TTestStompFrame
 
   RETURN ( NIL )
 
+METHOD testValidateCommandsMustNotHaveBody() CLASS TTestStompFrame
+  LOCAL cBody
+
+  ::oStompFrame:setBody("body")
+  ::oStompFrame:setCommand("SUBSCRIBE")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false SUBSCRIBE with a body" )
+  ::oStompFrame:setCommand("UNSUBSCRIBE")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false UNSUBSCRIBE with a body" )
+  ::oStompFrame:setCommand("BEGIN")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false BEGIN with a body" )
+  ::oStompFrame:setCommand("COMMIT")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false COMMIT with a body" )
+  ::oStompFrame:setCommand("ABORT")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false ABORT with a body" )
+  ::oStompFrame:setCommand("ACK")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false ACK with a body" )
+  ::oStompFrame:setCommand("NACK")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false NACK with a body" )
+  ::oStompFrame:setCommand("DISCONNECT")
+  ::assertFalse( ::oStompFrame:validateBody(), "should be false DISCONNECT with a body" )
+
+  RETURN ( NIL )
+
 METHOD testIsValid() CLASS TTestStompFrame
   LOCAL oHeader
 
@@ -232,6 +256,7 @@ METHOD testIsValid() CLASS TTestStompFrame
 
   oHeader := TStompFrameHeader():new( "destination", "/queue/1" )
   ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:setBody("body")
 
   ::assertTrue( ::oStompFrame:isValid(), "should return true for a complete valid frame" )
 
