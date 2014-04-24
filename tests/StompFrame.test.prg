@@ -1,4 +1,6 @@
+#include "stomp.ch"
 #include "hbclass.ch"
+#include "xhb.ch"
 
 CLASS TTestStompFrame INHERIT TTestCase
 
@@ -18,6 +20,7 @@ CLASS TTestStompFrame INHERIT TTestCase
   METHOD testValidateCommandAckHeaders()
   METHOD testValidateCommandNackHeaders()
   METHOD testValidateCommandsMustNotHaveBody()
+  METHOD testParseConnectFrame()
   METHOD testIsValid()
 
   METHOD Setup()
@@ -244,6 +247,29 @@ METHOD testValidateCommandsMustNotHaveBody() CLASS TTestStompFrame
   ::assertFalse( ::oStompFrame:validateBody(), "should be false NACK with a body" )
   ::oStompFrame:setCommand("DISCONNECT")
   ::assertFalse( ::oStompFrame:validateBody(), "should be false DISCONNECT with a body" )
+
+  RETURN ( NIL )
+
+METHOD testParseConnectFrame() CLASS TTestStompFrame
+  LOCAL cStompFrame := "", oParsedFrame, oError
+
+  // EOL is optional CR + LF or obrigatory LF
+  cStompFrame += "COMMAND"        + CHR_CRLF
+  cStompFrame += "header1:value1" + CHR_LF
+  cStompFrame += "header2:value2" + CHR_CRLF
+  cStompFrame += CHR_CRLF
+  cStompFrame += "Body"           + CHR_NULL
+  cStompFrame += CHR_CRLF         // OPTIONAL
+
+  oParsedFrame := ::oStompFrame():new()
+  oParsedFrame:parse( cStompFrame )
+
+  ::assertEquals( "COMMAND", oParsedFrame:cCommand, "oParsedFrame:cCommand should be 'COMMAND'" )
+  ::assertEquals( "header1", oParsedFrame:aHeaders[1]:cName, "oParsedFrame:aHeaders[1]:cName should be 'header1'" )
+  ::assertEquals( "value1", oParsedFrame:aHeaders[1]:cValue, "oParsedFrame:aHeaders[1]:cValue should be 'value1'" )
+  ::assertEquals( "header2", oParsedFrame:aHeaders[2]:cName, "oParsedFrame:aHeaders[2]:cName should be 'header2'" )
+  ::assertEquals( "value2", oParsedFrame:aHeaders[2]:cValue, "oParsedFrame:aHeaders[2]:cValue should be 'value2'" )
+  ::assertEquals( "Body", oParsedFrame:cBody, "oParsedFrame:cBody should be 'Body'" )
 
   RETURN ( NIL )
 

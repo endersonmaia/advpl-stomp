@@ -1,5 +1,6 @@
--inc
 xhb.hbc
+-inc
+-i./include
 -L./
 -lhbunit
 -lhbstomp

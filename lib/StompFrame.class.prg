@@ -10,6 +10,10 @@ CLASS TStompFrame
 
   METHOD new() CONSTRUCTOR
   METHOD build()
+  METHOD parse( cStompFrame )
+  METHOD parseExtractCommand( cStompFrame )
+  METHOD parseExtractHeaders( cStompFrame )
+  METHOD parseExtractBody( cStompFrame )
 
   // Content
   METHOD setCommand( cCommand )
@@ -145,3 +149,75 @@ METHOD build() CLASS TStompFrame
   cStompFrame += CHR_NULL + CHR_CRLF
 
   RETURN ( cStompFrame )
+
+METHOD parse( cStompFrame ) CLASS TStompFrame
+  LOCAL nLen          := 0,   ;
+        nLastPos      := 0,   ; 
+        cHeader       := "",  ; 
+        cHeaderName   := "",  ; 
+        cHeaderValue  := "",  ;
+        oHeader
+
+  // Cleaning cStompFrame from CRLF to LF only
+  cStompFrame := STRTRAN( cStompFrame, CHR_CRLF, CHR_LF )
+
+  ::cCommand  := ::parseExtractCommand( @cStompFrame )
+  IIF ( ( ::cCommand != "ERROR" ), ::aHeaders := ::parseExtractHeaders( @cStompFrame ), )
+  ::cBody     := ::parseExtractBody( @cStompFrame )
+
+  RETURN ( SELF )
+
+METHOD parseExtractCommand( cStompFrame ) CLASS TStompFrame
+  LOCAL nLen      := 0,   ;
+        nLastPos  := 0,   ; 
+        cCommand  := ""
+
+  nLen        := Len( cStompFrame )
+  nLastPos    := At( CHR_LF, cStompFrame )
+  cCommand    := SUBSTR( cStompFrame, 1, nLastPos - 1 )
+  cStompFrame := SUBSTR( cStompFrame, nLastPos + 1, nLen )
+
+  RETURN ( cCommand )
+
+METHOD parseExtractHeaders( cStompFrame ) CLASS TStompFrame
+  LOCAL nLen          := 0,   ;
+        nLastPos      := 0,   ;
+        cHeaders      := "",  ;
+        cHeaderName   := "",  ;
+        cHeaderValue  := "",  ;
+        aHeaders      := {},  ;
+        i             := 0,   ;
+        oHeader
+
+  nLen        := Len ( cStompFrame )
+  nLastPos    := Rat( CHR_LF+CHR_LF, cStompFrame )
+  cHeaders    := SUBSTR( cStompFrame, 1, nLastPos)
+
+  // extract header's name and value
+  DO WHILE ( AT( ":", cHeaders ) > 0 )
+    i++
+
+    cHeaderName   := LEFT( cHeaders, AT( ":", cHeaders ) - 1 )
+    cHeaderValue  := SUBSTR( cHeaders, AT( ":", cHeaders ) + 1, AT( CHR_LF, cHeaders) - AT( ":", cHeaders ) - 1)
+
+    AADD( aHeaders, TStompFrameHeader():new( cHeaderName, cHeaderValue ) )
+
+    cHeaders      := SUBSTR(  cHeaders, ;
+                              Len( CHR_LF ) + Len( cHeaderName ) + Len( ":" ) + Len( cHeaderValue ) + Len( CHR_LF ), ;
+                              nLen ;
+                            )
+  ENDDO
+
+  cStompFrame := SUBSTR( cStompFrame, nLastPos + 2, nLen )
+
+  RETURN ( aHeaders )
+
+METHOD parseExtractBody( cStompFrame ) CLASS TStompFrame
+  LOCAL nLen          := 0,   ;
+        nLastPos      := 0
+
+  nLen     := Len ( cStompFrame )
+  nLastPos := Rat( CHR_NULL+CHR_LF, cStompFrame )
+  cBody    := LEFT( cStompFrame, nLastPos - 1)
+
+  RETURN ( cBody )
