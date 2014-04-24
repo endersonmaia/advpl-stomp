@@ -1,6 +1,6 @@
 -inc
+xhb.hbc
 -L./
--lxhb
 -lhbunit
 -lhbstomp
 -oall_tests
