@@ -1,6 +1,43 @@
 # hbstomp [![Build Status](https://travis-ci.org/enderson/hbstomp.svg)](https://travis-ci.org/enderson/hbstomp)
 
-Biblioteca em Harbour/ADVPL que implementa o protocolo STOMP (http://stomp.github.io) para troca de mensagens.
+Library for Harbour/ADVPL that implements STOMP messaging protocol (http://stomp.github.io).
+
+## Goals
+
+These are the initial goals of this library
+
+- Build and validates a message;
+- Send messages to STOMP Server;
+- Parse STOPM server responses;
+- Learn Harbour and ADVPL programming;
+- Get rich :moneybag: ;
+
+## How-to Use it
+
+With this version, you can build basic STOMP Client Frames. 
+
+````xbase
+#include "stomp.ch"
+
+PROCEDURE main()
+  LOCAL oStompFrame
+
+  oStompFrame := TStompFrame():new()
+
+  oStompFrame:setCommand( "SEND" )
+  oStompFrame:addHeader( TStompFrameHeader():new( "destination", "/queue/a" ) )
+  oStompFrame:addHeader( TStompFrameHeader():new( "content-type", "text/plain" ) )
+  oStompFrame:setBody("hello queue a")
+
+  IF oStompFrame:isValid()
+    OutStd( oStompFrame:build() )
+  ELSE
+    OutErr( "STOMP frame invalid." )
+    ErrorLevel(1)
+  ENDIF
+
+  RETURN ( NIL )
+````
 
 # Licensa
 
