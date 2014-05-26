@@ -200,8 +200,27 @@ METHOD testValidateCommandAbortHeaders() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testValidateCommandsMustNotHaveBody() CLASS TTestStompFrame
+
+  ::oStompFrame:setBody( nil )
+  ::oStompFrame:setCommand("SUBSCRIBE")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false SUBSCRIBE with a body" )
+  ::oStompFrame:setCommand("UNSUBSCRIBE")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false UNSUBSCRIBE with a body" )
+  ::oStompFrame:setCommand("BEGIN")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false BEGIN with a body" )
+  ::oStompFrame:setCommand("COMMIT")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false COMMIT with a body" )
+  ::oStompFrame:setCommand("ABORT")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false ABORT with a body" )
+  ::oStompFrame:setCommand("ACK")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false ACK with a body" )
+  ::oStompFrame:setCommand("NACK")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false NACK with a body" )
+  ::oStompFrame:setCommand("DISCONNECT")
+  ::assertTrue( ::oStompFrame:validateBody(), "should be false DISCONNECT with a body" )
   
   ::oStompFrame:setBody("body")
+
   ::oStompFrame:setCommand("SUBSCRIBE")
   ::assertFalse( ::oStompFrame:validateBody(), "should be false SUBSCRIBE with a body" )
   ::oStompFrame:setCommand("UNSUBSCRIBE")

@@ -112,6 +112,9 @@ METHOD validateBody() CLASS TStompFrame
   CASE "ACK"
   CASE "NACK"
   CASE "DISCONNECT"
+  CASE "CONNECT"
+  CASE "STOMP"
+    IIF( ( Empty(::cBody) ), lReturn := .T., )
   EXIT
   END
 
