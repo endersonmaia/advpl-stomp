@@ -57,10 +57,8 @@ METHOD testSetCommand() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testAddHeader() CLASS TTestStompFrame
-  LOCAL oHeader
-
-  oHeader := TStompFrameHeader():new( "name", "value" )
-  ::oStompFrame:addHeader( oHeader )
+  
+  ::oStompFrame:addHeader( TStompFrameHeader():new( "name", "value" ) )
 
   ::assertEquals( "name", ::oStompFrame:aHeaders[1]:cName, "oHeader:cName should be name")
   ::assertEquals( "value", ::oStompFrame:aHeaders[1]:cValue, "oHeader:cValue should be value")
@@ -69,16 +67,13 @@ METHOD testAddHeader() CLASS TTestStompFrame
 
 
 METHOD testCountHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::assertEquals( 0, ::oStompFrame:countHeaders(), "StompFrame:countHeaders() should return 0 (zero) when no headers is addes to StompFrame" )
 
-  oHeader := TStompFrameHeader():new( "name", "value" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( "name", "value" ) )
   ::assertEquals( 1, ::oStompFrame:countHeaders(), "StompFrame:countHeaders() should return 1 (one)" )
 
-  oHeader := TStompFrameHeader():new( "other", "value" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( "other", "value" ) )
   ::assertEquals( 2, ::oStompFrame:countHeaders(), "StompFrame:countHeaders() should return 2 (two)" )
 
   RETURN ( NIL )
@@ -96,112 +91,92 @@ METHOD testValidateCommand() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testHeaderExists() CLASS TTestStompFrame
-    LOCAL oHeader
 
-    oHeader := TStompFrameHeader():new( "name", "value" )
-    ::oStompFrame:addHeader( oHeader )
+    ::oStompFrame:addHeader( TStompFrameHeader():new( "name", "value" ) )
 
     ::assertTrue( ::oStompFrame:headerExists( "name" ), "should return .T. after added the checked header name" )
     ::assertFalse( ::oStompFrame:headerExists( "inexistent" ), "should return .F. checking for unexisting header name")
 
-    oHeader := TStompFrameHeader():new( "other", "value" )
-    ::oStompFrame:addHeader( oHeader )
-    oHeader := TStompFrameHeader():new( "another", "value" )
-    ::oStompFrame:addHeader( oHeader )
+    ::oStompFrame:addHeader( TStompFrameHeader():new( "other", "value" ) )
+    ::oStompFrame:addHeader( TStompFrameHeader():new( "another", "value" ) )
 
     ::assertTrue( ::oStompFrame:headerExists( "another" ), "checking third header shoud be true" )
 
   RETURN ( NIL )
 
 METHOD testValidateConnectRequiredHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::oStompFrame:setCommand( "CONNECT" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false CONNECT without required headers")
 
-  oHeader := TStompFrameHeader():new( "accept-version", "1.2" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACCEPT_VERSION_HEADER, "1.2" ) )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false CONNECT with just one required header" )
 
   ::oStompFrame:setCommand( "STOMP" ) // since 1.2 CONNECT or STOMP can be used
-  oHeader := TStompFrameHeader():new( "host", "127.0.0.1" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_HOST_HEADER, "127.0.0.1" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true CONNECT with all required headers" )
 
   RETURN ( NIL )
 
 METHOD testValidateConnectedSendRequiredHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::oStompFrame:setCommand( "SEND" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false CONNECT without required headers")
 
-  oHeader := TStompFrameHeader():new( "destination", "/queue/1" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, "/queue/1" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true with destination required header" )
 
   RETURN ( NIL )
 
 METHOD testValidateCommandSubscribeHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
-
+  
   ::oStompFrame:setCommand( "SUBSCRIBE" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false SUBSCRIBE without required headers")
 
-  oHeader := TStompFrameHeader():new( "destination", "/queue/2" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, "/queue/2" ) )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false SUBSCRIBE with just one required header" )
 
-  oHeader := TStompFrameHeader():new( "id", "123" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, "123" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true SUBSCRIBE with all required headers" )
 
   RETURN ( NIL )
 
 METHOD testValidateCommandUnsubscribeHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
-
+  
   ::oStompFrame:setCommand( "UNSUBSCRIBE" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false UNSUBSCRIBE without required headers")
 
-  oHeader := TStompFrameHeader():new( "id", "123" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, "123" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true UNSUBSCRIBE with id required header" )
 
   RETURN ( NIL )
 
 METHOD testValidateCommandAckHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::oStompFrame:setCommand( "ACK" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false ACK without required headers")
 
-  oHeader := TStompFrameHeader():new( "id", "123" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, "123" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true ACK with id required header" )
 
   RETURN ( NIL )
 
 METHOD testValidateCommandNackHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::oStompFrame:setCommand( "NACK" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false NACK without required headers")
 
-  oHeader := TStompFrameHeader():new( "id", "123" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, "123" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true NACK with id required header" )
 
   RETURN ( NIL )
 
 METHOD testValidateCommandBeginHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::oStompFrame:setCommand( "BEGIN" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false BEGIN without required headers")
 
-  oHeader := TStompFrameHeader():new( "transaction", "123" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_TRANSACTION_HEADER, "123" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true BEGIN with id required header" )
 
   RETURN ( NIL )
@@ -211,25 +186,21 @@ METHOD testValidateCommandCommitHeaders() CLASS TTestStompFrame
   ::oStompFrame:setCommand( "COMMIT" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false COMMIT without required headers")
 
-  oHeader := TStompFrameHeader():new( "transaction", "123" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_TRANSACTION_HEADER, "123" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true COMMIT with id required header" )
 
 METHOD testValidateCommandAbortHeaders() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::oStompFrame:setCommand( "ABORT" )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false ABORT without required headers")
 
-  oHeader := TStompFrameHeader():new( "transaction", "123" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_TRANSACTION_HEADER, "123" ) )
   ::assertTrue( ::oStompFrame:validateHeader(), "should be true ABORT with id required header" )
 
   RETURN ( NIL )
 
 METHOD testValidateCommandsMustNotHaveBody() CLASS TTestStompFrame
-  LOCAL cBody
-
+  
   ::oStompFrame:setBody("body")
   ::oStompFrame:setCommand("SUBSCRIBE")
   ::assertFalse( ::oStompFrame:validateBody(), "should be false SUBSCRIBE with a body" )
@@ -274,14 +245,12 @@ METHOD testParseConnectFrame() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testIsValid() CLASS TTestStompFrame
-  LOCAL oHeader
 
   ::oStompFrame:setCommand( "SEND" )
 
   ::assertFalse( ::oStompFrame:isValid(), "should return false for an incomplete frame" )
 
-  oHeader := TStompFrameHeader():new( "destination", "/queue/1" )
-  ::oStompFrame:addHeader( oHeader )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, "/queue/1" ) )
   ::oStompFrame:setBody("body")
 
   ::assertTrue( ::oStompFrame:isValid(), "should return true for a complete valid frame" )

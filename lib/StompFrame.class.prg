@@ -72,23 +72,23 @@ METHOD validateHeader() CLASS TStompFrame
   SWITCH ::cCommand
   CASE "CONNECT"
   CASE "STOMP"
-    IIF ( ( ::headerExists("accept-version") .AND. ::headerExists("host") ), lReturn := .T., )
+    IIF ( ( ::headerExists(STOMP_ACCEPT_VERSION_HEADER) .AND. ::headerExists(STOMP_HOST_HEADER) ), lReturn := .T., )
   EXIT
   CASE "SEND"
-    IIF ( ::headerExists("destination"), lReturn := .T., )
+    IIF ( ::headerExists(STOMP_DESTINATION_HEADER), lReturn := .T., )
   EXIT
   CASE "SUBSCRIBE"
-    IIF ( ( ::headerExists("destination") .AND. ::headerExists("id") ), lReturn := .T., )
+    IIF ( ( ::headerExists(STOMP_DESTINATION_HEADER) .AND. ::headerExists(STOMP_ID_HEADER) ), lReturn := .T., )
   EXIT
   CASE "UNSUBSCRIBE"
   CASE "ACK"
   CASE "NACK"
-    IIF ( ::headerExists("id"), lReturn := .T., )
+    IIF ( ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
   EXIT
   CASE "BEGIN"
   CASE "COMMIT"
   CASE "ABORT"
-    IIF ( ::headerExists("transaction"), lReturn := .T., )
+    IIF ( ::headerExists(STOMP_TRANSACTION_HEADER), lReturn := .T., )
   EXIT
   CASE "DISCONNECT"
     lReturn := .T.
