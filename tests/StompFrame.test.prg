@@ -112,9 +112,12 @@ METHOD testValidateConnectRequiredHeaders() CLASS TTestStompFrame
   ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACCEPT_VERSION_HEADER, "1.2" ) )
   ::assertFalse( ::oStompFrame:validateHeader(), "should be false CONNECT with just one required header" )
 
+  ::oStompFrame := nil
+  ::oStompFrame := TStompFrame():new()
   ::oStompFrame:setCommand( "STOMP" ) // since 1.2 CONNECT or STOMP can be used
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACCEPT_VERSION_HEADER, "1.2" ) )
   ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_HOST_HEADER, "127.0.0.1" ) )
-  ::assertTrue( ::oStompFrame:validateHeader(), "should be true CONNECT with all required headers" )
+  ::assertTrue( ::oStompFrame:validateHeader(), "should be true STOMP with all required headers" )
 
   RETURN ( NIL )
 

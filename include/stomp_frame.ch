@@ -29,4 +29,8 @@
 #define STOMP_SERVER_COMMAND_RECEIPT       "RECEIPT"
 #define STOMP_SERVER_COMMAND_ERROR         "ERROR"
 
+#ifdef __TOTVS__
+  #xtranslate parseExtractHeaders( <x> ) => parseEH( <x> )
+  #xtranslate parseExtractBody( <x> ) => parseEB( <x> )
+#endif
 #endif

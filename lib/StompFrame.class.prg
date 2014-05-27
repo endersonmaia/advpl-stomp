@@ -59,7 +59,7 @@ METHOD validateCommand() CLASS TStompFrame
 
   RETURN ( lReturn )
 
-METHOD headerExists( cHeaderName )
+METHOD headerExists( cHeaderName ) CLASS TStompFrame
   LOCAL lReturn := .F.
 
   IIF ( ASCAN( ::aHeaders, { |h| h:cName == cHeaderName } ) > 0, lReturn := .T., )
@@ -69,54 +69,42 @@ METHOD headerExists( cHeaderName )
 METHOD validateHeader() CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  SWITCH ::cCommand
-  CASE "CONNECT"
-  CASE "STOMP"
+  DO CASE
+
+  CASE ::cCommand == "CONNECT" .OR. ::cCommand == "STOMP"
     IIF ( ( ::headerExists(STOMP_ACCEPT_VERSION_HEADER) .AND. ::headerExists(STOMP_HOST_HEADER) ), lReturn := .T., )
-  EXIT
-  CASE "SEND"
+  CASE ::cCommand == "SEND"
     IIF ( ::headerExists(STOMP_DESTINATION_HEADER), lReturn := .T., )
-  EXIT
-  CASE "SUBSCRIBE"
+  CASE ::cCommand == "SUBSCRIBE"
     IIF ( ( ::headerExists(STOMP_DESTINATION_HEADER) .AND. ::headerExists(STOMP_ID_HEADER) ), lReturn := .T., )
-  EXIT
-  CASE "UNSUBSCRIBE"
-  CASE "ACK"
-  CASE "NACK"
+  CASE ::cCommand == "UNSUBSCRIBE" .OR. ::cCommand == "ACK" .OR. ::cCommand == "NACK"
     IIF ( ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
-  EXIT
-  CASE "BEGIN"
-  CASE "COMMIT"
-  CASE "ABORT"
+  CASE ::cCommand == "BEGIN" .OR. ::cCommand == "COMMIT" .OR. ::cCommand == "ABORT"
     IIF ( ::headerExists(STOMP_TRANSACTION_HEADER), lReturn := .T., )
-  EXIT
-  CASE "DISCONNECT"
+  CASE ::cCommand == "DISCONNECT"
     lReturn := .T.
-  EXIT
-  END
+  ENDCASE
 
   RETURN ( lReturn )
 
 METHOD validateBody() CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  SWITCH ::cCommand  
-  CASE "SEND"
+  DO CASE  
+  CASE  ::cCommand == "SEND"
     IIF( !( Empty(::cBody) ), lReturn := .T., )
-  EXIT
-  CASE "SUBSCRIBE"
-  CASE "UNSUBSCRIBE"
-  CASE "BEGIN"
-  CASE "COMMIT"
-  CASE "ABORT"
-  CASE "ACK"
-  CASE "NACK"
-  CASE "DISCONNECT"
-  CASE "CONNECT"
-  CASE "STOMP"
+  CASE        ::cCommand == "SUBSCRIBE"   ;
+        .OR.  ::cCommand == "UNSUBSCRIBE" ;
+        .OR.  ::cCommand == "BEGIN"       ;
+        .OR.  ::cCommand == "COMMIT"      ;
+        .OR.  ::cCommand == "ABORT"       ;
+        .OR.  ::cCommand == "ACK"         ;
+        .OR.  ::cCommand == "NACK"        ;
+        .OR.  ::cCommand == "DISCONNECT"  ;
+        .OR.  ::cCommand == "CONNECT"     ;
+        .OR.  ::cCommand == "STOMP"
     IIF( ( Empty(::cBody) ), lReturn := .T., )
-  EXIT
-  END
+  ENDCASE
 
   RETURN ( lReturn )
 
