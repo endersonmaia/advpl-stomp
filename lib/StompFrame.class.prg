@@ -8,25 +8,35 @@ CLASS TStompFrame
 
   CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
 
-  METHOD new() CONSTRUCTOR
-  METHOD build()
-  METHOD parse( cStompFrame )
+  HIDDEN:
+  // Validations
+  METHOD validateCommand()
+  METHOD validateHeader()
+  METHOD validateBody()
+
+  #ifdef __PROTHEUS__
+    #xtranslate parseExtractCommand( <x> ) => parseEC( <x> )
+    #xtranslate parseExtractHeaders( <x> ) => parseEH( <x> )
+    #xtranslate parseExtractBody( <x> ) => parseEB( <x> )
+  #endif
   METHOD parseExtractCommand( cStompFrame )
   METHOD parseExtractHeaders( cStompFrame )
   METHOD parseExtractBody( cStompFrame )
+
+  EXPORTED:
+  METHOD new() CONSTRUCTOR
+  METHOD build()
+  METHOD parse( cStompFrame )
 
   // Content
   METHOD setCommand( cCommand )
   METHOD setBody( cBody )
   METHOD addHeader( oStompFrameHeader )
-  METHOD countHeaders()
+  METHOD removeAllHeaders()
 
-  // Validations
-  METHOD validateCommand()
-  METHOD validateHeader()
-  METHOD validateBody()
   METHOD isValid()
   METHOD headerExists( cHeaderName )
+  METHOD countHeaders()
 
 ENDCLASS
 
@@ -51,6 +61,10 @@ METHOD setBody( cBody ) CLASS TStompFrame
   ::cBody := cBody
 
   RETURN ( NIL )
+
+METHOD removeAllHeaders() CLASS TStompFrame
+  ::aHeaders := ARRAY(0)
+  RETURN ( nil )
 
 METHOD validateCommand() CLASS TStompFrame
   LOCAL lReturn := .F.
@@ -92,7 +106,7 @@ METHOD validateBody() CLASS TStompFrame
 
   DO CASE  
   CASE  ::cCommand == "SEND"
-    IIF( !( Empty(::cBody) ), lReturn := .T., )
+    lReturn := .T.
   CASE        ::cCommand == "SUBSCRIBE"   ;
         .OR.  ::cCommand == "UNSUBSCRIBE" ;
         .OR.  ::cCommand == "BEGIN"       ;
@@ -111,9 +125,7 @@ METHOD validateBody() CLASS TStompFrame
 METHOD isValid() CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  lReturn := ::validateCommand()
-  lReturn := ::validateHeader()
-  lReturn := ::validateBody()
+  lReturn := ::validateCommand() .AND. ::validateHeader() .AND. ::validateBody()
 
   RETURN ( lReturn )
 
