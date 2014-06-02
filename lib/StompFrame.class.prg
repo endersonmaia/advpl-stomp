@@ -2,11 +2,10 @@
 
 CLASS TStompFrame
 
-  DATA cCommand INIT "" READONLY
-  DATA aHeaders INIT {} READONLY
-  DATA cBody INIT "" READONLY
-
-  CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
+  DATA cCommand         READONLY
+  DATA aHeaders         READONLY
+  DATA cBody            READONLY
+  DATA aStompFrameTypes READONLY
 
   HIDDEN:
   // Validations
@@ -44,6 +43,8 @@ METHOD countHeaders() CLASS TStompFrame
   RETURN ( LEN( ::aHeaders ) )
 
 METHOD new() CLASS TStompFrame
+  ::aHeaders := {}
+  ::aStompFrameTypes := { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
   RETURN SELF
 
 METHOD addHeader ( oStompFrameHeader ) CLASS TStompFrame
@@ -69,7 +70,7 @@ METHOD removeAllHeaders() CLASS TStompFrame
 METHOD validateCommand() CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  IIF ( ASCAN( ::aStompFrameTypes, { |c| UPPER(c) == UPPER(::cCommand()) } ) > 0, lReturn := .T., )
+  IIF ( ASCAN( ::aStompFrameTypes, { |c| UPPER(c) == UPPER( ::cCommand ) } ) > 0, lReturn := .T., )
 
   RETURN ( lReturn )
 
