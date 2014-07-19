@@ -10,6 +10,7 @@ CLASS TTestStompFrame INHERIT TTestCase
   METHOD testCountHeaders()
   METHOD testValidateCommand()
   METHOD testHeaderExists()
+  METHOD testGetHeaderValue()
   METHOD testValidateConnectRequiredHeaders()
   METHOD testValidateConnectedSendRequiredHeaders()
   METHOD testValidateCommandSubscribeHeaders()
@@ -32,7 +33,7 @@ CLASS TTestStompFrame INHERIT TTestCase
 ENDCLASS
 
 METHOD Setup() CLASS TTestStompFrame
-	::oStompFrame := TStompFrame():new()
+  ::oStompFrame := TStompFrame():new()
   RETURN ( NIL )
 
 METHOD Teardown() CLASS TTestStompFrame
@@ -110,6 +111,16 @@ METHOD testHeaderExists() CLASS TTestStompFrame
     ::oStompFrame:addHeader( TStompFrameHeader():new( "another", "value" ) )
 
     ::assertTrue( ::oStompFrame:headerExists( "another" ), "checking third header shoud be true" )
+
+  RETURN ( NIL )
+
+METHOD testGetHeaderValue() CLASS TTestStompFrame
+
+  ::oStompFrame:addHeader( TStompFrameHeader():new( "name", "value" ) )
+
+  ::assertEquals( ::oStompFrame:getHeaderValue("name"), "value", "should be true for an existant header")
+
+  ::assertNil( ::oStompFrame:getHeaderValue("noheader"), "should be nil searching for an unexistant header" )
 
   RETURN ( NIL )
 

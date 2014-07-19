@@ -2,10 +2,11 @@
 
 CLASS TStompFrame
 
-  DATA cCommand         READONLY
-  DATA aHeaders         READONLY
-  DATA cBody            READONLY
-  DATA aStompFrameTypes READONLY
+  DATA cCommand INIT "" READONLY
+  DATA aHeaders INIT {} READONLY
+  DATA cBody INIT "" READONLY
+
+  CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
 
   HIDDEN:
   // Validations
@@ -32,6 +33,7 @@ CLASS TStompFrame
   METHOD setBody( cBody )
   METHOD addHeader( oStompFrameHeader )
   METHOD removeAllHeaders()
+  METHOD getHeaderValue( cHeaderName )
 
   METHOD isValid()
   METHOD headerExists( cHeaderName )
@@ -43,8 +45,6 @@ METHOD countHeaders() CLASS TStompFrame
   RETURN ( LEN( ::aHeaders ) )
 
 METHOD new() CLASS TStompFrame
-  ::aHeaders := {}
-  ::aStompFrameTypes := { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP" }
   RETURN SELF
 
 METHOD addHeader ( oStompFrameHeader ) CLASS TStompFrame
@@ -70,7 +70,7 @@ METHOD removeAllHeaders() CLASS TStompFrame
 METHOD validateCommand() CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  IIF ( ASCAN( ::aStompFrameTypes, { |c| UPPER(c) == UPPER( ::cCommand ) } ) > 0, lReturn := .T., )
+  IIF ( ASCAN( ::aStompFrameTypes, { |c| UPPER(c) == UPPER(::cCommand()) } ) > 0, lReturn := .T., )
 
   RETURN ( lReturn )
 
@@ -80,6 +80,14 @@ METHOD headerExists( cHeaderName ) CLASS TStompFrame
   IIF ( ASCAN( ::aHeaders, { |h| h:cName == cHeaderName } ) > 0, lReturn := .T., )
 
   RETURN ( lReturn )
+
+METHOD getHeaderValue( cHeaderName ) CLASS TStompFrame
+  LOCAL uReturn := nil
+
+  FOR i := 1 TO ::countHeaders()
+    IIF ( (::aHeaders[i]:cName == cHeaderName), uReturn := ::aHeaders[i]:cValue,  )
+  NEXT
+  RETURN ( uReturn )
 
 METHOD validateHeader() CLASS TStompFrame
   LOCAL lReturn := .F.
