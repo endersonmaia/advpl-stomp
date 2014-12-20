@@ -8,38 +8,36 @@ These are the initial goals of this library
 
 - Build and validates a message;
 - Send messages to STOMP Server;
-- Parse STOPM server responses;
+- Parse STOMP server responses;
 - Learn Harbour and ADVPL programming;
 - Get rich :moneybag: ;
 
 ## How-to Use it
 
-With this version, you can build basic STOMP Client Frames. 
+With this version, you can build and send basic STOMP Client Frames. Subscribing to STOMP queues isn't working at the moment.
 
 ````xbase
-#include "stomp.ch"
+PROCEDURE MAIN()
 
-PROCEDURE main()
-  LOCAL oStompFrame
+  oStompClient := TStompClient():new("127.0.0.1", 61613)
+  oStompClient:connect()
 
-  oStompFrame := TStompFrame():new()
+  IF ( oStompClient:isConnected() )
 
-  oStompFrame:setCommand( "SEND" )
-  oStompFrame:addHeader( TStompFrameHeader():new( "destination", "/queue/a" ) )
-  oStompFrame:addHeader( TStompFrameHeader():new( "content-type", "text/plain" ) )
-  oStompFrame:setBody("hello queue a")
+    oStompClient:publish( "/queue/hbstomp", "First message." )
+    oStompClient:publish( "/queue/hbstomp", "Second message!" )
 
-  IF oStompFrame:isValid()
-    OutStd( oStompFrame:build() )
+    oStompClient:disconnect()
   ELSE
-    OutErr( "STOMP frame invalid." )
+    OutStd( "Failed to connect.", hb_EOL() )
+    OutStd( "Message: ", oStompClient:getErrorMessage(), hb_EOL() )
     ErrorLevel(1)
   ENDIF
-
+  
   RETURN ( NIL )
 ````
 
-# Licensa
+# License
 
 The MIT License (MIT)
 
