@@ -22,6 +22,7 @@ CLASS TTestStompFrame INHERIT TTestCase
   METHOD testValidateCommandNackHeaders()
   METHOD testValidateCommandsMustNotHaveBody()
   METHOD testParseConnectFrame()
+  METHOD testParseTwoFrames()
   METHOD testRemoveAllHeaders()
 
   METHOD Setup()
@@ -69,8 +70,8 @@ METHOD testAddHeader() CLASS TTestStompFrame
   
   ::oStompFrame:addHeader( TStompFrameHeader():new( "name", "value" ) )
 
-  ::assertEquals( "name", ::oStompFrame:aHeaders[1]:cName, "oHeader:cName should be name")
-  ::assertEquals( "value", ::oStompFrame:aHeaders[1]:cValue, "oHeader:cValue should be value")
+  ::assertEquals( "name", ::oStompFrame:aHeaders[1]:getName(), "oHeader:getName() should be name")
+  ::assertEquals( "value", ::oStompFrame:aHeaders[1]:getValue(), "oHeader:getValue() should be value")
 
   RETURN ( NIL )
 
@@ -118,7 +119,7 @@ METHOD testGetHeaderValue() CLASS TTestStompFrame
 
   ::oStompFrame:addHeader( TStompFrameHeader():new( "name", "value" ) )
 
-  ::assertEquals( ::oStompFrame:getHeaderValue("name"), "value", "should be true for an existant header")
+  ::assertEquals( "value", ::oStompFrame:getHeaderValue("name"), "should be true for an existant header")
 
   ::assertNil( ::oStompFrame:getHeaderValue("noheader"), "should be nil searching for an unexistant header" )
 
@@ -260,15 +261,53 @@ METHOD testParseConnectFrame() CLASS TTestStompFrame
   cStompFrame += "Body"           + CHR_NULL
   cStompFrame += CHR_CRLF         // OPTIONAL
 
-  oParsedFrame := ::oStompFrame():new()
-  oParsedFrame:parse( cStompFrame )
+  oParsedFrame := TStompFrame():new()
+  oParsedFrame := oParsedFrame:parse( @cStompFrame )
 
   ::assertEquals( "COMMAND", oParsedFrame:cCommand, "oParsedFrame:cCommand should be 'COMMAND'" )
-  ::assertEquals( "header1", oParsedFrame:aHeaders[1]:cName, "oParsedFrame:aHeaders[1]:cName should be 'header1'" )
-  ::assertEquals( "value1", oParsedFrame:aHeaders[1]:cValue, "oParsedFrame:aHeaders[1]:cValue should be 'value1'" )
-  ::assertEquals( "header2", oParsedFrame:aHeaders[2]:cName, "oParsedFrame:aHeaders[2]:cName should be 'header2'" )
-  ::assertEquals( "value2", oParsedFrame:aHeaders[2]:cValue, "oParsedFrame:aHeaders[2]:cValue should be 'value2'" )
+  ::assertEquals( "header1", oParsedFrame:aHeaders[1]:getName(), "oParsedFrame:aHeaders[1]:getName() should be 'header1'" )
+  ::assertEquals( "value1", oParsedFrame:aHeaders[1]:getValue(), "oParsedFrame:aHeaders[1]:getValue() should be 'value1'" )
+  ::assertEquals( "header2", oParsedFrame:aHeaders[2]:getName(), "oParsedFrame:aHeaders[2]:getName() should be 'header2'" )
+  ::assertEquals( "value2", oParsedFrame:aHeaders[2]:getValue(), "oParsedFrame:aHeaders[2]:getValue() should be 'value2'" )
   ::assertEquals( "Body", oParsedFrame:cBody, "oParsedFrame:cBody should be 'Body'" )
+
+  RETURN ( NIL )
+
+METHOD testParseTwoFrames() CLASS TTestStompFrame
+  LOCAL cStompFrame    := "", ;
+        cStompFrameTwo := "", ;
+        cStompFrameOne := "", ;
+        oParsedFrame        , ;
+        oError
+
+  // EOL is optional CR + LF or obrigatory LF
+  cStompFrameOne += "COMMAND_ONE"    + CHR_CRLF
+  cStompFrameOne += "header1:value1" + CHR_LF
+  cStompFrameOne += "header2:value2" + CHR_CRLF
+  cStompFrameOne += CHR_CRLF
+  cStompFrameOne += "Body One"       + CHR_NULL
+  cStompFrameOne += CHR_CRLF         // OPTIONAL
+
+  // EOL is optional CR + LF or obrigatory LF
+  cStompFrameTwo += "COMMAND_TWO"    + CHR_CRLF
+  cStompFrameTwo += "header1:value1" + CHR_LF
+  cStompFrameTwo += "header2:value2" + CHR_CRLF
+  cStompFrameTwo += CHR_CRLF
+  cStompFrameTwo += "Body Two"       + CHR_NULL
+  cStompFrameTwo += CHR_CRLF         // OPTIONAL
+
+  cStompFrame := cStompFrameOne + cStompFrameTwo
+
+  oParsedFrame := TStompFrame():new()
+  oParsedFrame := oParsedFrame:parse( @cStompFrame )
+
+  ::assertEquals( "COMMAND_ONE", oParsedFrame:cCommand, "cCommand should be COMMAND_ONE")
+  ::assertEquals( "Body One", oParsedFrame:cBody, "cBody shoud be 'Body One'")
+
+  oParsedFrame := oParsedFrame:parse( @cStompFrame )
+
+  ::assertEquals( "COMMAND_TWO", oParsedFrame:cCommand, "cCommand should be COMMAND_TWO")
+  ::assertEquals( "Body Two", oParsedFrame:cBody, "cBody shoud be 'Body Two'")
 
   RETURN ( NIL )
 
