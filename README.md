@@ -1,4 +1,4 @@
-# hbstomp [![Build Status](https://travis-ci.org/enderson/hbstomp.svg)](https://travis-ci.org/enderson/hbstomp)
+# hbstomp [![Build Status](https://travis-ci.org/endersonmaia/hbstomp.svg)](https://travis-ci.org/endersonmaia/hbstomp)
 
 Library for Harbour/ADVPL that implements STOMP messaging protocol (http://stomp.github.io).
 
