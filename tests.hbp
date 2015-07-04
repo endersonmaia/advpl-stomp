@@ -1,4 +1,3 @@
-xhb.hbc
 -i./include
 -L./
 -lhbunit

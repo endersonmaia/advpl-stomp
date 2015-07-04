@@ -8,7 +8,6 @@
   #else
     #ifdef __HARBOUR__
       #include "hbclass.ch"
-      #include "xhb.ch"
       #include "hbsocket.ch"
     #endif
   #endif

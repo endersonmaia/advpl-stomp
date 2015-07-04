@@ -19,13 +19,13 @@ METHOD new()
 METHOD connect( cHost, nPort ) CLASS TStompSocketHarbour
 
   IF EMPTY( ::hSocket := hb_socketOpen() )
-    ::oError := xhb_errorNew( "ESocketOpen",,, ProcName(), "Socket create error " + hb_ntos( hb_socketGetError() ) )
-    Throw( ::oError )
+    ::oError := ErrorNew( "ESocketOpen",,, ProcName(), "Socket create error " + hb_ntos( hb_socketGetError() ) )
+    //Throw( ::oError )
   ENDIF
 
   IF !hb_socketConnect( ::hSocket, { HB_SOCKET_AF_INET, cHost, nPort } )
-    ::oError := xhb_errorNew( "ESocketConnect",,, ProcName(), "Socket connect error " + hb_ntos( hb_socketGetError() ) )
-    Throw( ::oError )
+    ::oError := ErrorNew( "ESocketConnect",,, ProcName(), "Socket connect error " + hb_ntos( hb_socketGetError() ) )
+    //Throw( ::oError )
   ENDIF
 
   RETURN( NIL )

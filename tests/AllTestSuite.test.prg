@@ -1,3 +1,5 @@
+#include "stomp.ch"
+
 FUNCTION main()
 
   LOCAL oRunner := TTextRunner():New()
@@ -7,7 +9,5 @@ FUNCTION main()
   oSuite:AddTest( TTestStompFrameBuilder():new() )
 
   oRunner:Run( oSuite )
-
-  inkey( 5 )
 
   RETURN ( nil )

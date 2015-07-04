@@ -4,14 +4,14 @@ before_install:
  - sudo apt-get -qq update
  - sudo apt-get install -qq libncurses-dev
  - sudo apt-get install -qq libslang2-dev
- - sudo apt-get install -qq unzip
 install:
-  - wget https://github.com/harbour/core/archive/master.zip -O /tmp/harbour-dev.zip
-  - cd /tmp && unzip harbour-dev.zip && cd -
-  - cd /tmp/core-master && HB_INSTALL_PREFIX=/usr/local HB_BUILD_3RDEXT=no HB_BUILD_CONTRIBS=xhb make && cd -
-  - cd /tmp/core-master && sudo make install && cd -
+  - wget https://downloads.sourceforge.net/harbour-project/source/3.0.0/harbour-3.0.0.tar.bz2 -O /tmp/harbour-3.0.0.tar.bz2
+  - cd /tmp && tar -xvjf harbour-3.0.0.tar.bz2 && cd -
+  - cd /tmp/harbour-3.0.0 && HB_INSTALL_PREFIX=/usr/local HB_BUILD_3RDEXT=no make && cd -
+  - cd /tmp/harbour-3.0.0 && sudo make install && cd -
   - sudo ldconfig -f /usr/local/etc/ld.so.conf.d/harbour.conf
-  - wget https://github.com/enderson/hbunit/releases/download/alpha-0.1/hbunit-linux.tar.gz
-  - tar -xvzf hbunit-linux.tar.gz libhbunit.a
+  - wget https://github.com/endersonmaia/hbunit/archive/0.0.3-alpha.tar.gz
+  - tar -xvzf 0.0.3-alpha.tar.gz libhbunit.a
 script:
-  - make && make test
+  - make
+  - make test
