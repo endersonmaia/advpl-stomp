@@ -11,7 +11,7 @@ install:
   - cd /tmp/harbour-3.0.0 && sudo make install && cd -
   - sudo ldconfig -f /usr/local/etc/ld.so.conf.d/harbour.conf
   - wget https://github.com/endersonmaia/hbunit/archive/0.0.3-alpha.tar.gz
-  - tar -xvzf 0.0.3-alpha.tar.gz libhbunit.a
+  - tar -xvzf 0.0.3-alpha.tar.gz libhbunit.so
 script:
   - make
   - make test
