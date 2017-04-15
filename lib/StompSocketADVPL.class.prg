@@ -1,6 +1,6 @@
+#ifdef __PROTHEUS__
 #include "stomp.ch"
 
-#ifdef __PROTHEUS__
 // See : http://tdn.totvs.com/display/tec/TSocketClient
 
 CLASS TStompSocketADVPL FROM TStompSocket

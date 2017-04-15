@@ -1,7 +1,6 @@
+#ifdef __HARBOUR__
 #include "stomp.ch"
 #include "hbsocket.ch"
-
-#ifdef __HARBOUR__
 
 CLASS TStompSocketHarbour FROM TStompSocket
 
@@ -71,4 +70,4 @@ METHOD disconnect() CLASS TStompSocketHarbour
 
   RETURN ( NIL )
 
-#endif
+#endif //__HARBOUR__
