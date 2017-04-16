@@ -1,6 +1,8 @@
 #ifndef _STOMP_CH
 #define _STOMP_CH
 
+  #define DEBUG
+
   #ifdef PROTHEUS
     #define __PROTHEUS__
     #include "totvs.ch"
@@ -22,6 +24,6 @@
 
   #define STOMP_HEADERS_COUNT_LIMIT 10
   #define STOMP_HEADER_SIZE_LIMIT   256
-  //#define STOMP_BODY_SIZE_LIMIT   (64*1024)
+  #define STOMP_BODY_SIZE_LIMIT     (64*1024)
 
 #endif

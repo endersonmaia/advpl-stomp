@@ -2,7 +2,7 @@
 #define _STOMP_FRAME_HEADER_CH
 
 // GENERAL
-#define STOMP_ACCEPTED_VERSIONS       	"1.2"
+#define STOMP_ACCEPTED_VERSIONS       	"1.0,1.1,1.2"
 
 // DEFAULT HEADERS
 #define STOMP_ACCEPT_VERSION_HEADER "accept-version"
