@@ -1,10 +1,12 @@
 #include "stomp.ch"
 
 //TODO - handle Stomp Server ERROR frames
-//TODO - handle TStompSocke exceptions
+//TODO - handle TStompSocket errors
 //TODO - return exceptions to users of TStompClient
 //TODO - handle receipts
+//TODO - handle ack, nack
 //TODO - handle transactions
+//TODO - handle many subscriptions on a single connection
 
 CLASS TStompClient
 
@@ -65,31 +67,35 @@ METHOD new( cHost, nPort, cLogin, cPassword , cDestination, lSendReceipt ) CLASS
 METHOD connect() CLASS TStompClient
   LOCAL oStompFrame, cFrameBuffer
 
-  //TODO - handle socket errors
   ::oSocket := TStompSocket():new()
   ::oSocket:connect( ::cHost, ::nPort )
+  
+  IF ::oSocket:isConnected()
+    ::lConnected := .T.
 
-  IF ::lHasLoginData
-    oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination, ::cLogin, ::cPassword )
-  ELSE
-    oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination )
-  ENDIF
-
-  ::oSocket:send( oStompFrame:build() )
-
-  IF ( ( ::oSocket:receive() > 0 ) )
-    cFrameBuffer := ::oSocket:cReceivedData
-    oStompFrame := oStompFrame:parse( cFrameBuffer )
-
-    IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_CONNECTED )
-      ::lConnected := .T.
-      ::cSessionID := oStompFrame:getHeaderValue( STOMP_SESSION_HEADER )
+    IF ::lHasLoginData
+      oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination, ::cLogin, ::cPassword )
     ELSE
-      IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
-        ::cErrorMessage := oStompFrame:getHeaderValue( STOMP_MESSAGE_HEADER )
-      ENDIF
+      oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination )
     ENDIF
 
+    ::oSocket:send( oStompFrame:build() )
+
+    IF ( ( ::oSocket:receive() > 0 ) )
+      cFrameBuffer := ::oSocket:cReceivedData
+      oStompFrame := oStompFrame:parse( cFrameBuffer )
+
+      IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_CONNECTED )
+        ::lConnected := .T.
+        ::cSessionID := oStompFrame:getHeaderValue( STOMP_SESSION_HEADER )
+      ELSE
+        IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
+          ::cErrorMessage := oStompFrame:getHeaderValue( STOMP_MESSAGE_HEADER )
+        ENDIF
+      ENDIF
+    ENDIF
+  ELSE
+  //TODO : implement socket connection error handling
   ENDIF
 
   RETURN ( nil )

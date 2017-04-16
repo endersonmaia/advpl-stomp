@@ -1,5 +1,5 @@
-#ifdef TOTVS
 #include "stomp.ch"
+#define DEBUG
 
 CLASS TStompSocket
 
@@ -22,37 +22,47 @@ CLASS TStompSocket
 ENDCLASS
 
 METHOD new() CLASS TStompSocket
+  ::lConnected := .F.
 RETURN ( SELF )
 
 METHOD connect( cHost, nPort ) CLASS TStompSocket
 
-  ::hSocket    := tSocketClient():new()
-  ::hSocket:Connect( nPort, cHost, 10 )
+  ::hSocket := tSocketClient():new()
+  ::nStatus := ::hSocket:connect( nPort , cHost, STOMP_SOCKET_CONNECTION_TIMEOUT )
 
-  IF (::hSocket:isConnected()
-  	::lConnected := .T.
-  	::nStatus := STOMP_SOCKET_STATUS_CONNECTED
-  ELSE
-  	::lConnected := .F.
-  	::nStatus := STOMP_SOCKET_STATUS_CONNECTION_FAILED)
-  END
+  IF ::hSocket:isConnected()
+    ::lConnected := .T.
+  ENDIF
 
   RETURN ( nil )
 
 METHOD send( cStompFrame ) CLASS TStompSocket
+  LOCAL nSocketSend
+  LOCAL nSocketReceive
 
-  ::cReceivedData := ::hSocket:send( ALLTRIM( cStompFrame ) )
+  nSocketSend := ::hSocket:send( cStompFrame )
 
-  IF ( ::cReceivedData == Len(cStompFrame) )
-    ::nStatus := STOMP_SOCKET_STATUS_DATA_SENT
+  IF ( nSocketSend == Len( cStompFrame ) )
+
+    #ifdef DEBUG
+    Conout( ">>>" + CRLF )
+    Conout( ALLTRIM( cStompFrame ) + CRLF )
+    #endif
+
+    nSocketReceive := ::hSocket:receive( ::cReceivedData , STOMP_SOCKET_CONNECTION_TIMEOUT )
+
+    IF ( ! nSocketReceive > 0 )
+      ConOut( "" , "tSocketClient" , "" , "Sem Resposta a requisicao" , "" )
+      IF ( lGetError )
+        ConOut( ::hSocket:GetError() )
+      EndIF
+    EndIF
   ELSE
-    ::nStatus := STOMP_SOCKET_STATUS_SEND_FAILED
+    IF ( lGetError )
+      ConOut( ::hSocket:GetError() )
+    EndIF
+    ConOut( "" , "tSocketClient" , "" , "Problemas no Enviamos da Mensagem" , "" )
   ENDIF
-
-  #ifdef DEBUG
-  Conout( ">>>" + CRLF )
-  Conout( ALLTRIM( cStompFrame ) + CRLF )
-  #endif
 
   RETURN ( nil )
 
@@ -76,10 +86,9 @@ METHOD receive() CLASS TStompSocket
 METHOD disconnect() CLASS TStompSocket
 
   ::hSocket:CloseConnection()
+	::hSocket	:= NIL
 
   RETURN ( nil )
 
-METHOD isConnected() CLASS TStomSocket
+METHOD isConnected() CLASS TStompSocket
 RETURN ( ::lConnected )
-
-#endif // TOTVS
