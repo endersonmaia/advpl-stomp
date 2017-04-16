@@ -16,6 +16,7 @@ CLASS TStompSocket
   METHOD send( cStompFrame )      VIRTUAL
   METHOD receive()                VIRTUAL
   METHOD disconnect()             VIRTUAL
+  METHOD isConnected()
 
 ENDCLASS
 
@@ -24,8 +25,11 @@ METHOD new() CLASS TStompSocket
   #ifdef __HARBOUR__
   oReturn := TStompSocketHarbour():new()
   #else
-  #ifdef __PROTHEUS__
+  #ifdef __TOTVS__
   oReturn := TStompSocketADVPL():new()
   #endif
   #endif
   RETURN ( oReturn )
+
+ METHOD isConnected() CLASS TStompSocket
+   RETURN( ::nStatus )

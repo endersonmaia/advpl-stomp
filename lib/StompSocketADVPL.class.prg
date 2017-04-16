@@ -1,10 +1,11 @@
-#ifdef __PROTHEUS__
+#ifdef __TOTVS__
 #include "stomp.ch"
 
 // See : http://tdn.totvs.com/display/tec/TSocketClient
 
 CLASS TStompSocketADVPL FROM TStompSocket
 
+  METHOD new() CONSTRUCTOR
   METHOD connect( cHost, nPort )
   METHOD send( cStompFrame )
   METHOD receive( cReceivedData )
@@ -21,9 +22,8 @@ METHOD connect( cHost, nPort ) CLASS TStompSocketADVPL
 
   RETURN ( nil )
 
-
 METHOD send( cStompFrame ) CLASS TStompSocketADVPL
-  
+
   ::cReceivedData := ::hSocket:send( cStompFrame )
 
   IF ( ::cReceivedData == Len(cStompFrame) )
@@ -36,8 +36,10 @@ METHOD send( cStompFrame ) CLASS TStompSocketADVPL
 
 METHOD receive() CLASS TStompSocketADVPL
 
-  cBuffer := ""
-  nResp := oObj:Receive( @cBuffer, 10000 ) 
+  LOCAL cBuffer := ""
+  LOCAL nResp := 0
+
+  nResp := ::hSocket:receive( @cBuffer, 10000 )
   if( nResp >= 0 )
       conout( "--> Dados Recebidos " + StrZero(nResp,5) )
       conout( "--> ["+cBuffer+"]" )
@@ -49,7 +51,7 @@ METHOD receive() CLASS TStompSocketADVPL
 
 METHOD disconnect() CLASS TStompSocketADVPL
 
-  oObj:CloseConnection()
+  ::hSocket:CloseConnection()
 
   RETURN ( nil )
 

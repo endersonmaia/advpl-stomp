@@ -6,4 +6,3 @@
 tests/StompFrame.test.prg
 tests/StompFrameBuilder.test.prg
 tests/AllTestSuite.test.prg
-tests/fake/StompSocketFake.class.prg

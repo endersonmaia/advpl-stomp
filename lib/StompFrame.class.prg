@@ -2,12 +2,10 @@
 
 CLASS TStompFrame
 
-  DATA cCommand INIT "" READONLY
-  DATA aHeaders INIT {} READONLY
-  DATA cBody INIT "" READONLY
-  DATA aErrors INIT {} READONLY
-
-  CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP", "MESSAGE", "CONNECTED" }
+  DATA cCommand
+  DATA aHeaders
+  DATA cBody
+  DATA aErrors
 
   // Validations
   METHOD validateCommand()
