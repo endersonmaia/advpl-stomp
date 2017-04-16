@@ -4,6 +4,6 @@
   #include "tryexception.ch"
 
   #xtranslate HIDDEN: =>
-  #xtranslate EXPORTED: =>
+  #xtranslate EXPORTED: => PUBLIC:
 
 #endif
