@@ -184,20 +184,19 @@ METHOD subscribe( cDestination, cAckMode, nTimeOut, bProc ) CLASS TStompClient
   IF ( ( nLen := ::oSocket:receive() ) > 0 )
     cFrameBuffer := ::oSocket:cReceivedData
 
-    DO WHILE ( Len( cFrameBuffer ) > 0  )
+    DO WHILE ( Len( cFrameBuffer ) > 0 )
+      ConOut( "Frame N: " + STR( ++i ) + CRLF )
+
       oStompFrame := oStompFrame:parse( @cFrameBuffer )
 
       IF ( !oStompFrame:isValid() )
-        ::cErrorMessage := "HBSTOMP: Invalid frame"
-        BREAK
+        FOR i := 1 TO oStompFrame:countErrors()
+          ConOut( "ERRO: " + oStompFrame:aErrors[i] )
+        NEXT
       ENDIF
 
       IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_MESSAGE )
-        IF ( ValType( bProc ) == 'B' )
-          EVAL(bProc, oStompFrame:cBody, oStompFrame)
-        ELSE
-          ::cLastMessage := oStompFrame:cBody
-        ENDIF
+        ConOut( "Frame Dump" + CRLF + oStompFrame:build() + CRLF )
       ELSE
         IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
           ::cErrorMessage := oStompFrame:cBody
