@@ -24,8 +24,8 @@ METHOD testBuildConnectFrame() CLASS TTestStompFrameBuilder
 METHOD testBuildConnectFrameWithoutHost() CLASS TTestStompFrameBuilder
   LOCAL oStompFrame
 
-  oStompFrame := TStompFrameBuilder():buildConnectFrame()
-  ::assert:false( oStompFrame:headerExists(STOMP_HOST_HEADER), "header host should not exist" )
+  oStompFrame := TStompFrameBuilder():buildConnectFrame(,,)
+  ::assert:false( oStompFrame:isValid(), "frame should not be valid without host")
 
   RETURN ( nil )
 

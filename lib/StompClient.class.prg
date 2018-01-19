@@ -8,7 +8,7 @@
 
 CLASS TStompClient
 
-  METHOD new( cHost, nPort )
+  METHOD new( cHost, nPort, cLogin, cPassword ) CONSTRUCTOR
   METHOD connect()
   METHOD disconnect()
   METHOD publish( cDestination, cMessage )
@@ -25,16 +25,31 @@ CLASS TStompClient
   DATA oSocket
   DATA cHost
   DATA nPort
+  DATA cLogin
+  DATA cPassword
+  DATA cDestination
   DATA lConnected
   DATA cErrorMessage
   DATA aFrames
+  DATA lHasLoginData INIT .F.
+  DATA cSessionID
 
 ENDCLASS
 
-METHOD new( cHost, nPort ) CLASS TStompClient
+METHOD new( cHost, nPort, cLogin, cPassword , cDestination ) CLASS TStompClient
+
   ::cHost := cHost
   ::nPort := nPort
+  ::cDestination := cDestination
+
+  IF ( ValType(cLogin) == 'C' .AND. ValType(cPassword) == 'C')
+    ::cLogin := cLogin
+    ::cPassword := cPassword
+    ::lHasLoginData := .T.
+  ENDIF
+
   ::lConnected := .F.
+
   RETURN ( self )
 
 METHOD connect() CLASS TStompClient
@@ -44,7 +59,12 @@ METHOD connect() CLASS TStompClient
   ::oSocket := TStompSocket():new()
   ::oSocket:connect( ::cHost, ::nPort )
 
-  oStompFrame := TStompFrameBuilder():buildConnectFrame( ::cHost )
+  IF ::lHasLoginData
+    oStompFrame := TStompFrameBuilder():buildConnectFrame( ::cDestination, ::cLogin, ::cPassword )
+  ELSE
+    oStompFrame := TStompFrameBuilder():buildConnectFrame( ::cDestination )
+  ENDIF
+
   ::oSocket:send( oStompFrame:build() )
 
   IF ( ( ::oSocket:receive() > 0 ) )
@@ -53,9 +73,10 @@ METHOD connect() CLASS TStompClient
 
     IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_CONNECTED )
       ::lConnected := .T.
+      ::cSessionID := oStompFrame:getHeaderValue( STOMP_SESSION_HEADER )
     ELSE
       IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
-        ::cErrorMessage := oStompFrame:cMessage
+        ::cErrorMessage := oStompFrame:getHeaderValue( STOMP_MESSAGE_HEADER )
       ENDIF
     ENDIF
 
@@ -71,6 +92,8 @@ METHOD publish( cDestination, cMessage ) CLASS TStompClient
 
   oStompFrame := TStompFrameBuilder():buildSendFrame( cDestination, cMessage )
   ::oSocket:send( oStompFrame:build() )
+
+  //TODO - implementar tratamento do retorno, caso exista mensagem reply-to
 
   RETURN ( nil )
 
@@ -94,7 +117,7 @@ METHOD subscribeTo( cDestination ) CLASS TStompClient
 
   oStompFrame := TStompFrameBuilder():buildSubscribeFrame( cDestination, "1" )
   ::oSocket:send( oStompFrame:build() )
- 
+
   //FIXME : split received data in individual StompFrames
   IF ( ( nLen := ::oSocket:receive() ) > 0 )
     cFrameBuffer := ::oSocket:cReceivedData
