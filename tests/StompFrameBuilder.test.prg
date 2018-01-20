@@ -4,6 +4,8 @@ CLASS TTestStompFrameBuilder FROM TTestCase
 
   METHOD testBuildConnectFrame()
   METHOD testBuildDisconectFrame()
+  METHOD testBuildConnectFrameWithoutHost()
+  METHOD testBuildConnectFrameWithLoginInfo()
 
 ENDCLASS
 
@@ -19,7 +21,25 @@ METHOD testBuildConnectFrame() CLASS TTestStompFrameBuilder
 
   RETURN ( nil )
 
- METHOD testBuildDisconectFrame() CLASS TTestStompFrameBuilder
+METHOD testBuildConnectFrameWithoutHost() CLASS TTestStompFrameBuilder
+  LOCAL oStompFrame
+
+  oStompFrame := TStompFrameBuilder():buildConnectFrame(,,)
+  ::assert:false( oStompFrame:isValid(), "frame should not be valid without host")
+
+  RETURN ( nil )
+
+METHOD testBuildConnectFrameWithLoginInfo() CLASS TTestStompFrameBuilder
+  LOCAL oStompFrame
+
+  oStompFrame := TStompFrameBuilder():buildConnectFrame( , 'user', 'pass' )
+  ::assert:true( oStompFrame:headerExists(STOMP_LOGIN_HEADER), "header login should exist" )
+  ::assert:true( oStompFrame:headerExists(STOMP_PASSCODE_HEADER), "header passcode should exist" )
+
+  RETURN ( nil )
+
+
+METHOD testBuildDisconectFrame() CLASS TTestStompFrameBuilder
   LOCAL oStompFrame
 
   oStompFrame := TStompFrameBuilder():buildDisconnectFrame( "receipt-1" )

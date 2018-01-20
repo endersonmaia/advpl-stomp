@@ -132,7 +132,7 @@ METHOD validateHeader() CLASS TStompFrame
 METHOD validateBody() CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  DO CASE  
+  DO CASE
   CASE  ::cCommand == "SEND" .OR. ::cCommand == "MESSAGE"
     lReturn := .T.
   CASE        ::cCommand == "SUBSCRIBE"   ;
@@ -154,7 +154,6 @@ METHOD validateBody() CLASS TStompFrame
 
 METHOD isValid() CLASS TStompFrame
   RETURN ( ::validateCommand() .AND. ::validateHeader() .AND. ::validateBody() )
-
 
 METHOD build() CLASS TStompFrame
   LOCAL cStompFrame := "", i
@@ -183,9 +182,9 @@ METHOD build() CLASS TStompFrame
 
 METHOD parse( cStompFrame ) CLASS TStompFrame
   LOCAL nLen          := 0 ,  ;
-        nLastPos      := 0 ,  ; 
-        cHeader       := "",  ; 
-        cHeaderName   := "",  ; 
+        nLastPos      := 0 ,  ;
+        cHeader       := "",  ;
+        cHeaderName   := "",  ;
         cHeaderValue  := "",  ;
         oHeader            ,  ;
         oStompFrame
@@ -203,7 +202,7 @@ METHOD parse( cStompFrame ) CLASS TStompFrame
 
 METHOD parseExtractCommand( cStompFrame ) CLASS TStompFrame
   LOCAL nLen      := 0,   ;
-        nLastPos  := 0,   ; 
+        nLastPos  := 0,   ;
         cCommand  := ""
 
   nLen        := Len( cStompFrame )
