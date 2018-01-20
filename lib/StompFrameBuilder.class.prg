@@ -4,7 +4,7 @@ CLASS TStompFrameBuilder
 
   METHOD buildConnectFrame( cHost, cLogin, cPassCode )
   METHOD buildSendFrame( cDestination, cMessage )
-  METHOD buildSubscribeFrame( cDestination, cID )
+  METHOD buildSubscribeFrame( cDestination )
   METHOD buildDisconnectFrame( cReceipt )
 
 ENDCLASS
@@ -49,8 +49,10 @@ METHOD buildDisconnectFrame() CLASS TStompFrameBuilder
 
   RETURN ( oStompFrame )
 
-METHOD buildSubscribeFrame( cDestination, cID ) CLASS TStompFrameBuilder
-  LOCAL oStompFrame
+METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
+  LOCAL oStompFrame, cID := ""
+
+  cID := HBSTOMP_IDS_PREFIX + RandonAlphabet( HBSTOMP_IDS_LENGHT )
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_SUBSCRIBE )

@@ -14,7 +14,7 @@ CLASS TStompClient
   METHOD publish( cDestination, cMessage )
   METHOD isConnected()
   METHOD getErrorMessage()
-  METHOD subscribeTo( cDestination )
+  METHOD subscribe( cDestination, cAck )
   METHOD readFrame()
   METHOD countFramesToRead()
   METHOD addFrame()
@@ -112,10 +112,12 @@ METHOD disconnect() CLASS TStompClient
 METHOD isConnected() CLASS TStompClient
   RETURN ( ::lConnected )
 
-METHOD subscribeTo( cDestination ) CLASS TStompClient
+METHOD subscribe( cDestination, cAck ) CLASS TStompClient
   LOCAL oStompFrame, i := 0, cFrameBuffer
 
-  oStompFrame := TStompFrameBuilder():buildSubscribeFrame( cDestination, "1" )
+  oStompFrame := TStompFrameBuilder():buildSubscribeFrame( cDestination )
+  IIF( ValType( cAck ) == 'C', oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACK_HEADER, cAck ) ), )
+
   ::oSocket:send( oStompFrame:build() )
 
   //FIXME : split received data in individual StompFrames

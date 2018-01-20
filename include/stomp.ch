@@ -26,4 +26,7 @@
   #define STOMP_HEADER_SIZE_LIMIT   256
   #define STOMP_BODY_SIZE_LIMIT     (64*1024)
 
+  #define HBSTOMP_IDS_PREFIX "hbstomp-"
+  #define HBSTOMP_IDS_LENGHT 16
+
 #endif

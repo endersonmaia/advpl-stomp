@@ -6,6 +6,7 @@ CLASS TTestStompFrameBuilder FROM TTestCase
   METHOD testBuildDisconectFrame()
   METHOD testBuildConnectFrameWithoutHost()
   METHOD testBuildConnectFrameWithLoginInfo()
+  METHOD testBuildSubscribeFrame()
 
 ENDCLASS
 
@@ -46,5 +47,16 @@ METHOD testBuildDisconectFrame() CLASS TTestStompFrameBuilder
 
   ::assert:true( oStompFrame:isValid(), "frame should be valid" )
   ::assert:equals( oStompFrame:cCommand, STOMP_CLIENT_COMMAND_DISCONNECT, "Frame command should be DISCONNECT" )
+
+ RETURN ( nil )
+
+ METHOD testBuildSubscribeFrame() CLASS TTestStompFrameBuilder
+   LOCAL oStompFrame
+
+   oStompFrame := TStompFrameBuilder():buildSubscribeFrame( "/queue/destination" )
+
+   ::assert:true( oStompFrame:isValid(), "frame should be valid" )
+   ::assert:equals( oStompFrame:cCommand, STOMP_CLIENT_COMMAND_SUBSCRIBE, "Frame command should be SUBSCRIBE" )
+   ::assert:equals( LEN( oStompFrame:getHeaderValue( STOMP_ID_HEADER ) ), LEN( HBSTOMP_IDS_PREFIX ) + HBSTOMP_IDS_LENGHT, "the size of id header should match" )
 
  RETURN ( nil )
