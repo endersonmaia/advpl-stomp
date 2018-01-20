@@ -34,6 +34,8 @@ CLASS TStompClient
   DATA lHasLoginData INIT .F.
   DATA cSessionID
   DATA lSendReceipt
+  DATA cLastReceipt
+  DATA cLastMessage
 
 ENDCLASS
 
@@ -103,6 +105,20 @@ METHOD publish( cDestination, cMessage ) CLASS TStompClient
   ::oSocket:send( oStompFrame:build() )
 
   //TODO - implementar tratamento do retorno, caso exista mensagem reply-to
+  IF ( ( ::oSocket:receive() > 0 ) )
+    cFrameBuffer := ::oSocket:cReceivedData
+    oStompFrame := oStompFrame:parse( cFrameBuffer )
+
+    DO CASE
+    CASE  oStompFrame:cCommand == STOMP_SERVER_COMMAND_MESSAGE
+      ::cLastMessage := oStompFrame:cBody
+    CASE  oStompFrame:cCommand == STOMP_SERVER_COMMAND_RECEIPT
+      ::cLastReceipt := oStompFrame:getHeaderValue( STOMP_RECEIPT_ID_HEADER )
+    CASE  oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR
+      ::cErrorMessage := oStompFrame:getHeaderValue( STOMP_MESSAGE_HEADER )
+    ENDCASE
+
+  ENDIF
 
   RETURN ( nil )
 
