@@ -1,3 +1,4 @@
+//TODO - implement real randomness ;)
 FUNCTION RandonAlphabet(nLen)
   LOCAL i := 0, cReturn := "",seconds := Seconds()
 

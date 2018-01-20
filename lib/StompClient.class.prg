@@ -8,7 +8,7 @@
 
 CLASS TStompClient
 
-  METHOD new( cHost, nPort, cLogin, cPassword ) CONSTRUCTOR
+  METHOD new( cHost, nPort, cLogin, cPassword, cDestination, lSendReceipt ) CONSTRUCTOR
   METHOD connect()
   METHOD disconnect()
   METHOD publish( cDestination, cMessage )
@@ -33,14 +33,17 @@ CLASS TStompClient
   DATA aFrames
   DATA lHasLoginData INIT .F.
   DATA cSessionID
+  DATA lSendReceipt
 
 ENDCLASS
 
-METHOD new( cHost, nPort, cLogin, cPassword , cDestination ) CLASS TStompClient
+METHOD new( cHost, nPort, cLogin, cPassword , cDestination, lSendReceipt ) CLASS TStompClient
 
   ::cHost := cHost
   ::nPort := nPort
   ::cDestination := cDestination
+
+  IIF( ValType(lSendReceipt) != 'U', ::lSendReceipt := lSendReceipt, ::lSendReceipt := .F. )
 
   IF ( ValType(cLogin) == 'C' .AND. ValType(cPassword) == 'C')
     ::cLogin := cLogin
@@ -88,9 +91,15 @@ METHOD getErrorMessage() CLASS TStompClient
   RETURN ( ::cErrorMessage )
 
 METHOD publish( cDestination, cMessage ) CLASS TStompClient
-  LOCAL oStompFrame
+  LOCAL oStompFrame, cReceiptID
 
   oStompFrame := TStompFrameBuilder():buildSendFrame( cDestination, cMessage )
+
+  IF ( ::lSendReceipt == .T. )
+    cReceiptID := HBSTOMP_IDS_PREFIX + RandonAlphabet( HBSTOMP_IDS_LENGHT )
+    oStompFrame:addHeader( TStompFrameHeader():new( STOMP_RECEIPT_HEADER,  cReceiptID) )
+  ENDIF
+
   ::oSocket:send( oStompFrame:build() )
 
   //TODO - implementar tratamento do retorno, caso exista mensagem reply-to

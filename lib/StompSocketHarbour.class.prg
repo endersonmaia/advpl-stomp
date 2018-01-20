@@ -40,19 +40,24 @@ METHOD receive() CLASS TStompSocketHarbour
   ENDIF
 
   #ifdef DEBUG
-  OutStd( "<<<", hb_EOL() )
-  OutStd( ALLTRIM( cBuffer ), hb_EOL() )
+  ? "<<<<", CHR_CRLF
+  ? cBuffer, CHR_CRLF
+  ? "^^^^", CHR_CRLF
   #endif
 
   RETURN ( nLen )
 
+//TODO - handle errors
+//TODO - handle reconnections
+//TODO - handle responses from the server
 METHOD send( cStompFrame ) CLASS TStompSocketHarbour
 
-  hb_socketSend( ::hSocket, ALLTRIM( cStompFrame ) )
+  hb_socketSend( ::hSocket, cStompFrame )
 
   #ifdef DEBUG
-  OutStd( ">>>", hb_EOL() )
-  OutStd( ALLTRIM( cStompFrame ), hb_EOL() )
+  ? ">>>>", CHR_CRLF
+  ? cStompFrame, CHR_CRLF
+  ? "^^^^", CHR_CRLF
   #endif
 
  RETURN ( NIL )
