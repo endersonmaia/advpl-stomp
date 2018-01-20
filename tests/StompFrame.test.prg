@@ -12,6 +12,7 @@ CLASS TTestStompFrame FROM TTestCase
   METHOD testValidateConnectRequiredHeaders()
   METHOD testValidateConnectedSendRequiredHeaders()
   METHOD testValidateCommandSubscribeHeaders()
+  METHOD testValidateSubscribeAckModes()
   METHOD testValidateCommandUnsubscribeHeaders()
   METHOD testValidateCommandBeginHeaders()
   METHOD testValidateCommandCommitHeaders()
@@ -51,7 +52,7 @@ METHOD testSetBody() CLASS TTestStompFrame
   ::oStompFrame:setBody( "corpo" )
 
   ::assert:equals( "corpo", ::oStompFrame:cBody, "cBody should be corpo")
-  
+
   RETURN ( NIL )
 
 METHOD testSetCommand() CLASS TTestStompFrame
@@ -65,7 +66,7 @@ METHOD testSetCommand() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testAddHeader() CLASS TTestStompFrame
-  
+
   ::oStompFrame:addHeader( TStompFrameHeader():new( "name", "value" ) )
 
   ::assert:equals( "name", ::oStompFrame:aHeaders[1]:getName(), "oHeader:getName() should be name")
@@ -87,7 +88,7 @@ METHOD testCountHeaders() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testValidateCommand() CLASS TTestStompFrame
-  
+
   ::clearFrame()
   ::assert:false( ::oStompFrame:isValid(), "should be false when stompframe has no command" )
 
@@ -144,7 +145,7 @@ METHOD testValidateConnectRequiredHeaders() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testValidateConnectedSendRequiredHeaders() CLASS TTestStompFrame
-  
+
   ::clearFrame()
   ::oStompFrame:setCommand( "SEND" )
   ::assert:false( ::oStompFrame:isValid(), "should be false CONNECT without required headers")
@@ -155,7 +156,7 @@ METHOD testValidateConnectedSendRequiredHeaders() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testValidateCommandSubscribeHeaders() CLASS TTestStompFrame
-  
+
   ::oStompFrame:setCommand( "SUBSCRIBE" )
   ::assert:false( ::oStompFrame:isValid(), "should be false SUBSCRIBE without required headers")
 
@@ -167,8 +168,24 @@ METHOD testValidateCommandSubscribeHeaders() CLASS TTestStompFrame
 
   RETURN ( NIL )
 
+METHOD testValidateSubscribeAckModes() CLASS TTestStompFrame
+
+  ::oStompFrame:setCommand( "SUBSCRIBE" )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, "/queue/2" ) )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, "123" ) )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACK_HEADER, "client" ) )
+  ::assert:true( ::oStompFrame:isValid(), "should be true SUBSCRIBE with a valid ACK mode" )
+
+  ::oStompFrame:removeAllHeaders()
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, "/queue/2" ) )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, "123" ) )
+  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACK_HEADER, "INVALID" ) )
+  ::assert:false( ::oStompFrame:isValid(), "should be false SUBSCRIBE with an invalid ACK mode" )
+
+  RETURN ( NIL )
+
 METHOD testValidateCommandUnsubscribeHeaders() CLASS TTestStompFrame
-  
+
   ::oStompFrame:setCommand( "UNSUBSCRIBE" )
   ::assert:false( ::oStompFrame:isValid(), "should be false UNSUBSCRIBE without required headers")
 
@@ -226,7 +243,7 @@ METHOD testValidateCommandAbortHeaders() CLASS TTestStompFrame
   RETURN ( NIL )
 
 METHOD testValidateCommandsMustNotHaveBody() CLASS TTestStompFrame
-  
+
   ::clearFrame()
   ::oStompFrame:setBody("body")
   ::oStompFrame:setCommand("SUBSCRIBE")
