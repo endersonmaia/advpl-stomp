@@ -114,7 +114,8 @@ METHOD validateHeader() CLASS TStompFrame
   CASE ::cCommand == "SEND"
     IIF ( ::headerExists(STOMP_DESTINATION_HEADER), lReturn := .T., )
   CASE ::cCommand == "SUBSCRIBE"
-    IIF ( ( ::headerExists(STOMP_DESTINATION_HEADER) .AND. ::headerExists(STOMP_ID_HEADER) ), lReturn := .T., )
+    IIF ( ::headerExists(STOMP_DESTINATION_HEADER) .AND. ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
+    IIF ( lreturn == .T. .AND. ::headerExists(STOMP_ACK_HEADER) .AND. ASCAN( STOMP_ACK_MODES, ::getHeaderValue(STOMP_ACK_HEADER) ) = 0, lReturn := .F., )
   CASE ::cCommand == "UNSUBSCRIBE" .OR. ::cCommand == "ACK" .OR. ::cCommand == "NACK"
     IIF ( ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
   CASE ::cCommand == "BEGIN" .OR. ::cCommand == "COMMIT" .OR. ::cCommand == "ABORT"
