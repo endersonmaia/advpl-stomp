@@ -1,84 +1,86 @@
+#ifndef __HARBOUR__
 #include "stomp.ch"
-#define DEBUG
 
 CLASS TStompSocket
 
+  METHOD new() CONSTRUCTOR
+  METHOD connect( cHost, nPort )
+  METHOD send( cStompFrame )
+  METHOD receive()
+  METHOD disconnect()
+  METHOD isConnected()
+
+HIDDEN:
   DATA hSocket
   DATA nStatus
-  DATA lConnected
   DATA oError
   DATA cBuffer
   DATA cReceivedData
   DATA cHost
   DATA nPort
-
-  METHOD new() CONSTRUCTOR
-  METHOD connect( cHost, nPort )
-  METHOD send( cStompFrame )
-  METHOD receive( cReceivedData )
-  METHOD disconnect()
-  METHOD isConnected()
+  DATA lConnected
 
 ENDCLASS
 
 METHOD new() CLASS TStompSocket
   ::lConnected := .F.
-RETURN ( SELF )
+  RETURN ( SELF )
 
 METHOD connect( cHost, nPort ) CLASS TStompSocket
 
-  ::hSocket := tSocketClient():new()
+  ::hSocket := TSocketClient():new()
   ::nStatus := ::hSocket:connect( nPort , cHost, STOMP_SOCKET_CONNECTION_TIMEOUT )
 
-  IF ::hSocket:isConnected()
+  IF ::nStatus .AND. ::hSocket:isConnected()
     ::lConnected := .T.
   ENDIF
 
-  RETURN ( nil )
+  RETURN ( NIL )
 
 METHOD send( cStompFrame ) CLASS TStompSocket
-  LOCAL nSocketSend
-  LOCAL nSocketReceive
+  LOCAL nSocketSend, nSocketReceive
 
   nSocketSend := ::hSocket:send( cStompFrame )
 
   IF ( nSocketSend == Len( cStompFrame ) )
 
     #ifdef DEBUG
-    Conout( ">>>" + CRLF )
-    Conout( ALLTRIM( cStompFrame ) + CRLF )
+    ? ">>>>", CHR_CRLF
+    ? ALLTRIM( cStompFrame) , CHR_CRLF
+    ? "^^^^", CHR_CRLF
     #endif
 
     nSocketReceive := ::hSocket:receive( ::cReceivedData , STOMP_SOCKET_CONNECTION_TIMEOUT )
 
     IF ( ! nSocketReceive > 0 )
-      ConOut( "" , "tSocketClient" , "" , "Sem Resposta a requisicao" , "" )
+      ? "TSocketClient - Sem Resposta a requisicao", CHR_CRLF
       IF ( lGetError )
-        ConOut( ::hSocket:GetError() )
+        ? ::hSocket:GetError(), CHR_CRLF
       EndIF
     EndIF
   ELSE
     IF ( lGetError )
-      ConOut( ::hSocket:GetError() )
+      ? ::hSocket:GetError(), CHR_CRLF
     EndIF
-    ConOut( "" , "tSocketClient" , "" , "Problemas no Enviamos da Mensagem" , "" )
+    ? "TSocketClient - Problemas no Enviamos da Mensagem", CHR_CRLF
   ENDIF
 
-  RETURN ( nil )
+  RETURN ( NIL )
 
 METHOD receive() CLASS TStompSocket
   LOCAL cBuffer := SPACE( STOMP_SOCKET_BUFFER_SIZE )
   LOCAL nLen := 0
 
   ::cReceivedData := ""
-  nLen := ::hSocket:receive( @cBuffer, 10000 )
-  IF( nResp >= 0 )
+  nLen := ::hSocket:receive( @cBuffer, STOMP_SOCKET_BUFFER_SIZE )
+  IF( nLen >= 0 )
     ::cReceivedData := cBuffer
   ENDIF
 
   #ifdef DEBUG
-  Conout( "<<<" + CRLF )
-  Conout( ALLTRIM( cBuffer ) + CRLF )
+  ? "<<<<" CHR_CRLF
+  ? ALLTRIM( cBuffer ) , CHR_CRLF
+  ? "^^^^", CHR_CRLF
   #endif
 
   RETURN ( nLen )
@@ -86,9 +88,12 @@ METHOD receive() CLASS TStompSocket
 METHOD disconnect() CLASS TStompSocket
 
   ::hSocket:CloseConnection()
-	::hSocket	:= NIL
+  ::hSocket := NIL
+  ::lConnected := .F.
 
-  RETURN ( nil )
+  RETURN ( NIL )
 
 METHOD isConnected() CLASS TStompSocket
-RETURN ( ::lConnected )
+  RETURN ( ::hSocket:isConnected() .AND. ::lConnected )
+
+#endif // #ifndef __HARBOUR__

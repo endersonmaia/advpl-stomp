@@ -3,15 +3,6 @@
 
 CLASS TStompSocket
 
-  DATA hSocket
-  DATA nStatus
-  DATA lConnected
-  DATA oError
-  DATA cBuffer
-  DATA cReceivedData
-  DATA cHost
-  DATA nPort
-
   METHOD new() CONSTRUCTOR
   METHOD connect( cHost, nPort )
   METHOD send( cStompFrame )
@@ -19,21 +10,34 @@ CLASS TStompSocket
   METHOD disconnect()
   METHOD isConnected()
 
+HIDDEN:
+  DATA hSocket
+  DATA nStatus
+  DATA oError
+  DATA cBuffer
+  DATA cReceivedData
+  DATA cHost
+  DATA nPort
+  DATA lConnected
+
 ENDCLASS
 
 METHOD new() CLASS TStompSocket
-  RETURN ( self )
+  ::lConnected := .F.
+  RETURN ( SELF )
 
 METHOD connect( cHost, nPort ) CLASS TStompSocket
 
   IF EMPTY( ::hSocket := hb_socketOpen() )
     ::oError := ErrorNew( "ESocketOpen",,, ProcName(), "Socket create error " + hb_ntos( hb_socketGetError() ) )
-    //Throw( ::oError )
+  ELSE
+    ::lConnected := .T.
   ENDIF
 
   IF !hb_socketConnect( ::hSocket, { HB_SOCKET_AF_INET, cHost, nPort } )
     ::oError := ErrorNew( "ESocketConnect",,, ProcName(), "Socket connect error " + hb_ntos( hb_socketGetError() ) )
-    //Throw( ::oError )
+  ELSE
+    ::lConnected := .T.
   ENDIF
 
   RETURN( NIL )
@@ -81,7 +85,7 @@ METHOD disconnect() CLASS TStompSocket
 
   RETURN ( NIL )
 
-METHOD isConnected() CLASS TStomSocket
-RETURN ( ::lConnected )
+METHOD isConnected() CLASS TStompSocket
+  RETURN ( ::lConnected )
 
 #endif //__HARBOUR__
