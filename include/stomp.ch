@@ -2,16 +2,11 @@
 #define _STOMP_CH
 
 #ifdef __HARBOUR__
-#include "hbclass.ch"
-#include "hbsocket.ch"
+  #include "hbclass.ch"
+  #include "hbsocket.ch"
 #else
-#ifdef TOTVS
-#include "totvs.ch"
-#include "stomp_totvs_compat.ch"
-#else
-#include "protheus.ch"
-#include "stomp_totvs_compat.ch"
-#endif
+  #include "totvs.ch"
+  #include "stomp_totvs_compat.ch"
 #endif
 
 #include "stomp_frame.ch"
@@ -26,7 +21,7 @@
 #define STOMP_HEADER_SIZE_LIMIT   256
 #define STOMP_BODY_SIZE_LIMIT     (64*1024)
 
-  #define HBSTOMP_IDS_PREFIX "hbstomp-"
-  #define HBSTOMP_IDS_LENGHT 16
+#define HBSTOMP_IDS_PREFIX "hbstomp-"
+#define HBSTOMP_IDS_LENGHT 16
 
-#endif
+#endif // _STOMP_CH
