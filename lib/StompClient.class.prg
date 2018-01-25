@@ -38,19 +38,15 @@ CLASS TStompClient
   DATA cLastReceipt
   DATA cLastMessage
   DATA oStompFrameBuilder
-  DATA aSubscriptions
-  DATA lGracefullyDisconnected INIT .F.
 
 ENDCLASS
 
 METHOD new( cHost, nPort, cLogin, cPassword , cDestination, lSendReceipt ) CLASS TStompClient
 
-  ::oStompFrameBuilder := TStompFrameBuilder:new()
+  ::oStompFrameBuilder := TStompFrameBuilder():new()
   ::cHost := cHost
   ::nPort := nPort
   ::cDestination := cDestination
-
-  oStompFrameBuilder := TStompFrameBuilder:new()
 
   IIF( ValType(lSendReceipt) != 'U', ::lSendReceipt := lSendReceipt, ::lSendReceipt := .F. )
 
@@ -65,21 +61,32 @@ METHOD new( cHost, nPort, cLogin, cPassword , cDestination, lSendReceipt ) CLASS
   RETURN ( self )
 
 METHOD connect() CLASS TStompClient
-  LOCAL oStompFrame, cFrameBuffer
+  LOCAL oStompFrame, cFrameBuffer, i
 
   ::oSocket := TStompSocket():new()
   ::oSocket:connect( ::cHost, ::nPort )
-  
-  IF ::oSocket:isConnected()
+
+  IF ( ::oSocket:isConnected() )
     ::lConnected := .T.
 
-    IF ::lHasLoginData
+    IF ( ::lHasLoginData == .T. )
       oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination, ::cLogin, ::cPassword )
     ELSE
       oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination )
     ENDIF
 
-    ::oSocket:send( oStompFrame:build() )
+    ? CHR_CRLF, "oStompFrame:build()", CHR_CRLF, oStompFrame:build(.F.), CHR_CRLF
+    IF ( oStompFrame:isValid() )
+      ::oSocket:send( oStompFrame:build() )
+    ELSE
+      ? "oStompFrame:countErrors() : ", oStompFrame:countErrors()
+      FOR i := 1 TO oStompFrame:countErrors()
+        ? "ERRO : ", oStompFrame:aErrors[i]
+      NEXT
+
+      ::disconnect()
+
+    ENDIF
 
     IF ( ( ::oSocket:receive() > 0 ) )
       cFrameBuffer := ::oSocket:cReceivedData
@@ -166,17 +173,13 @@ METHOD disconnect() CLASS TStompClient
     ENDIF
   ENDIF
 
-  oStompFrame := ::oStompFrameBuilder:buildDisconnectFrame()
-  ::oSocket:send( oStompFrame:build() )
-
   ::oSocket:disconnect()
-
   ::lConnected := .F.
 
   RETURN ( nil )
 
 METHOD isConnected() CLASS TStompClient
-  RETURN ( ::oSocket:isConnected() )
+  RETURN ( ::oSocket:isConnected() .AND. (::lConnected == .T. ) )
 
 METHOD subscribe( cDestination, cAckMode, nTimeOut, bProc ) CLASS TStompClient
   LOCAL oStompFrame, i := 0, cFrameBuffer := ""
@@ -191,18 +194,18 @@ METHOD subscribe( cDestination, cAckMode, nTimeOut, bProc ) CLASS TStompClient
     cFrameBuffer := ::oSocket:cReceivedData
 
     DO WHILE ( Len( cFrameBuffer ) > 0 )
-      ConOut( "Frame N: " + STR( ++i ) + CRLF )
+      ? "Frame N: ", STR( ++i ), CRLF
 
       oStompFrame := oStompFrame:parse( @cFrameBuffer )
 
       IF ( !oStompFrame:isValid() )
         FOR i := 1 TO oStompFrame:countErrors()
-          ConOut( "ERRO: " + oStompFrame:aErrors[i] )
+          ? "ERRO: ", oStompFrame:aErrors[i]
         NEXT
       ENDIF
 
       IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_MESSAGE )
-        ConOut( "Frame Dump" + CRLF + oStompFrame:build() + CRLF )
+        ? "Frame Dump", CRLF, oStompFrame:build(), CRLF
       ELSE
         IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
           ::cErrorMessage := oStompFrame:cBody
