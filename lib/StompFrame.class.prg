@@ -6,6 +6,7 @@ CLASS TStompFrame
   DATA aHeaders
   DATA cBody
   DATA aErrors
+  DATA aStompFrameTypes
 
   // Validations
   METHOD validateCommand()
@@ -44,7 +45,12 @@ METHOD countErrors() CLASS TStompFrame
   RETURN ( LEN( ::aErrors ) )
 
 METHOD new() CLASS TStompFrame
-  RETURN SELF
+  ::aHeaders := {}
+  ::aErrors := {}
+  ::cCommand := ""
+  ::cBody := ""
+  ::aStompFrameTypes := STOMP_COMMANDS
+  RETURN ( SELF )
 
 METHOD addHeader( oStompFrameHeader ) CLASS TStompFrame
   AADD( ::aHeaders, oStompFrameHeader )
