@@ -154,10 +154,10 @@ METHOD validateBody() CLASS TStompFrame
 METHOD isValid() CLASS TStompFrame
   RETURN ( ::validateCommand() .AND. ::validateHeader() .AND. ::validateBody() )
 
-METHOD build() CLASS TStompFrame
+METHOD build(lCheck) CLASS TStompFrame
   LOCAL cStompFrame := "", i
 
-  IF !::isValid()
+  IF !::isValid() .AND. lCheck != .F.
     RETURN ( .F. )
   ENDIF
 
