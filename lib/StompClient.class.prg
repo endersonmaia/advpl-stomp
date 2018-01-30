@@ -67,7 +67,7 @@ METHOD connect() CLASS TStompClient
   ::oSocket:connect( ::cHost, ::nPort )
 
   IF ( ::oSocket:isConnected() )
-    ::lConnected := .T.
+        ::lConnected := .T.
 
     IF ( ::lHasLoginData == .T. )
       oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination, ::cLogin, ::cPassword )
@@ -75,18 +75,7 @@ METHOD connect() CLASS TStompClient
       oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination )
     ENDIF
 
-    ? CHR_CRLF, "oStompFrame:build()", CHR_CRLF, oStompFrame:build(.F.), CHR_CRLF
-    IF ( oStompFrame:isValid() )
-      ::oSocket:send( oStompFrame:build() )
-    ELSE
-      ? "oStompFrame:countErrors() : ", oStompFrame:countErrors()
-      FOR i := 1 TO oStompFrame:countErrors()
-        ? "ERRO : ", oStompFrame:aErrors[i]
-      NEXT
-
-      ::disconnect()
-
-    ENDIF
+    ::oSocket:send( oStompFrame:build() )
 
     IF ( ( ::oSocket:receive() > 0 ) )
       cFrameBuffer := ::oSocket:cReceivedData
@@ -105,19 +94,19 @@ METHOD connect() CLASS TStompClient
   //TODO : implement socket connection error handling
   ENDIF
 
-  RETURN ( nil )
+  RETURN ( NIL )
 
 METHOD getErrorMessage() CLASS TStompClient
   RETURN ( ::cErrorMessage )
 
 //TODO - implementar envio de headers
 METHOD publish( cDestination, cMessage ) CLASS TStompClient
-  LOCAL oStompFrame, cReceiptID
+  LOCAL oStompFrame, cReceiptID := ""
 
   oStompFrame := ::oStompFrameBuilder:buildSendFrame( cDestination, cMessage )
 
   IF ( ::lSendReceipt == .T. )
-    cReceiptID := HBSTOMP_IDS_PREFIX + RandonAlphabet( HBSTOMP_IDS_LENGHT )
+    cReceiptID := HBSTOMP_IDS_PREFIX + _randomAlphabet( HBSTOMP_IDS_LENGHT )
     oStompFrame:addHeader( TStompFrameHeader():new( STOMP_RECEIPT_HEADER,  cReceiptID) )
   ENDIF
 

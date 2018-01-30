@@ -12,6 +12,7 @@
 #include "stomp_frame.ch"
 #include "stomp_frame_header.ch"
 #include "stomp_socket.ch"
+#include "stomp_utils.ch"
 
 #define STOMP_DEFAULT_PORT 61613
 

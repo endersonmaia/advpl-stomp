@@ -28,12 +28,19 @@ METHOD new() CLASS TStompSocket
 
 METHOD connect( cHost, nPort ) CLASS TStompSocket
 
+  BEGIN SEQUENCE
+
   ::hSocket := TSocketClient():new()
   ::nStatus := ::hSocket:connect( nPort , cHost, STOMP_SOCKET_CONNECTION_TIMEOUT )
 
-  IF ::nStatus .AND. ::hSocket:isConnected()
+  IF (::nStatus == 0) .AND. ::hSocket:isConnected()
     ::lConnected := .T.
+  ELSE
+    ::disconnect()
+    BREAK
   ENDIF
+
+  END SEQUENCE
 
   RETURN ( NIL )
 
@@ -54,14 +61,8 @@ METHOD send( cStompFrame ) CLASS TStompSocket
 
     IF ( ! nSocketReceive > 0 )
       ? "TSocketClient - Sem Resposta a requisicao", CHR_CRLF
-      IF ( lGetError )
-        ? ::hSocket:GetError(), CHR_CRLF
-      EndIF
     EndIF
   ELSE
-    IF ( lGetError )
-      ? ::hSocket:GetError(), CHR_CRLF
-    EndIF
     ? "TSocketClient - Problemas no Enviamos da Mensagem", CHR_CRLF
   ENDIF
 
@@ -78,7 +79,7 @@ METHOD receive() CLASS TStompSocket
   ENDIF
 
   #ifdef DEBUG
-  ? "<<<<" CHR_CRLF
+  ? "<<<<", CHR_CRLF
   ? ALLTRIM( cBuffer ) , CHR_CRLF
   ? "^^^^", CHR_CRLF
   #endif
