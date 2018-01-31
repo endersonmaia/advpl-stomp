@@ -6,7 +6,7 @@ CLASS TStompSocket
   METHOD new() CONSTRUCTOR
   METHOD connect( cHost, nPort )
   METHOD send( cStompFrame )
-  METHOD receive()
+  METHOD receive( @cReceivedData )
   METHOD disconnect()
   METHOD isConnected()
 
@@ -68,7 +68,7 @@ METHOD send( cStompFrame ) CLASS TStompSocket
 
   RETURN ( NIL )
 
-METHOD receive() CLASS TStompSocket
+METHOD receive( cReceivedData ) CLASS TStompSocket
   LOCAL cBuffer := SPACE( STOMP_SOCKET_BUFFER_SIZE )
   LOCAL nLen := 0
 
@@ -76,6 +76,7 @@ METHOD receive() CLASS TStompSocket
   nLen := ::hSocket:receive( @cBuffer, STOMP_SOCKET_BUFFER_SIZE )
   IF( nLen >= 0 )
     ::cReceivedData := cBuffer
+    cReceivedData := ::cReceivedData
   ENDIF
 
   #ifdef DEBUG

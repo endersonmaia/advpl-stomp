@@ -62,8 +62,8 @@ METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_SUBSCRIBE )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, cDestination ) )
   oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cID ) )
+  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, cDestination ) )
 
   RETURN ( oStompFrame )
 
