@@ -14,7 +14,7 @@ CLASS TStompClient
   METHOD publish( cDestination, cMessage )
   METHOD isConnected()
   METHOD getErrorMessage()
-  METHOD subscribe( cDestination, cAck )
+  METHOD subscribe( cDestination, cAckMode )
   METHOD readFrame()
   METHOD countFramesToRead()
   METHOD addFrame()
@@ -137,11 +137,11 @@ METHOD disconnect() CLASS TStompClient
 METHOD isConnected() CLASS TStompClient
   RETURN ( ::lConnected )
 
-METHOD subscribe( cDestination, cAck ) CLASS TStompClient
+METHOD subscribe( cDestination, cAckMode ) CLASS TStompClient
   LOCAL oStompFrame, i := 0, cFrameBuffer
 
   oStompFrame := TStompFrameBuilder():buildSubscribeFrame( cDestination )
-  IIF( ValType( cAck ) == 'C', oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACK_HEADER, cAck ) ), )
+  IIF( ValType( cAckMode ) == 'C', oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACK_HEADER, cAckMode ) ), )
 
   ::oSocket:send( oStompFrame:build() )
 
