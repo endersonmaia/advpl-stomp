@@ -39,6 +39,7 @@ CLASS TStompClient
   DATA cLastMessage
   DATA oStompFrameBuilder
   DATA aSubscriptions
+  DATA lGracefullyDisconnected INIT .F.
 
   METHOD _registerSubscription( cSubscriptionId )
 
@@ -51,8 +52,9 @@ METHOD new( cHost, nPort, cLogin, cPassword , cDestination, lSendReceipt ) CLASS
   ::nPort := nPort
   ::cDestination := cDestination
   ::aSubscriptions := {}
+  ::lSendReceipt := .F.
 
-  IIF( ValType(lSendReceipt) != 'U', ::lSendReceipt := lSendReceipt, ::lSendReceipt := .F. )
+  IIF( ValType(lSendReceipt) != 'U', ::lSendReceipt := .T., )
 
   IF ( ValType(cLogin) == 'C' .AND. ValType(cPassword) == 'C')
     ::cLogin := cLogin
@@ -81,7 +83,7 @@ METHOD connect() CLASS TStompClient
 
     ::oSocket:send( oStompFrame:build() )
 
-    IF ( ( ::oSocket:receive( @cFrameBuffer ) > 0 ) )
+    IF ( ::oSocket:receive( @cFrameBuffer ) > 0 )
       oStompFrame := oStompFrame:parse( cFrameBuffer )
 
       IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_CONNECTED )
@@ -104,7 +106,7 @@ METHOD getErrorMessage() CLASS TStompClient
 
 //TODO - implementar envio de headers
 METHOD publish( cDestination, cMessage ) CLASS TStompClient
-  LOCAL oStompFrame, cReceiptID := ""
+  LOCAL oStompFrame, cFrameBuffer := "", cReceiptID := ""
 
   oStompFrame := ::oStompFrameBuilder:buildSendFrame( cDestination, cMessage )
 
@@ -116,8 +118,7 @@ METHOD publish( cDestination, cMessage ) CLASS TStompClient
   ::oSocket:send( oStompFrame:build(.F.) )
 
   //TODO - implementar tratamento do retorno, caso exista mensagem reply-to
-  IF ( ( ::oSocket:receive() > 0 ) )
-    cFrameBuffer := ::oSocket:cReceivedData
+  IF ( ::oSocket:receive( @cFrameBuffer ) > 0 )
     oStompFrame := oStompFrame:parse( cFrameBuffer )
 
     DO CASE
@@ -146,7 +147,7 @@ METHOD disconnect() CLASS TStompClient
         oStompFrame:addHeader( TStompFrameHeader():new( STOMP_RECEIPT_HEADER,  cReceiptID) )
       ENDIF
 
-      ::oSocket:send( oStompFrame:build(.F.) )
+      ::oSocket:send( oStompFrame:build() )
 
       IF ( ::oSocket:receive( @cFrameBuffer ) > 0 )
         oStompFrame := oStompFrame:parse( cFrameBuffer )
@@ -162,6 +163,15 @@ METHOD disconnect() CLASS TStompClient
         ENDCASE
 
       ENDIF
+
+    ENDIF
+
+    IF ( cReceiptID == cDisconnectReceiptID )
+      ::lGracefullyDisconnected := .T.
+      ::oSocket:disconnect()
+    ELSE
+      ::lGracefullyDisconnected := .F.
+      ::oSocket:disconnect()
     ENDIF
   ENDIF
 
@@ -173,7 +183,7 @@ METHOD disconnect() CLASS TStompClient
 METHOD isConnected() CLASS TStompClient
   RETURN ( ::oSocket:isConnected() .AND. (::lConnected == .T. ) )
 
-METHOD subscribe( cDestination, cAckMode, nTimeOut, bProc ) CLASS TStompClient
+METHOD subscribe( cDestination, cAckMode ) CLASS TStompClient
   LOCAL oStompFrame, i := 0, cFrameBuffer := ""
 
   oStompFrame := ::oStompFrameBuilder:buildSubscribeFrame( cDestination )
@@ -183,33 +193,29 @@ METHOD subscribe( cDestination, cAckMode, nTimeOut, bProc ) CLASS TStompClient
 
   ::oSocket:send( oStompFrame:build(.F.) )
 
-  //FIXME : split received data in individual StompFrames
-  IF ( ( nLen := ::oSocket:receive() ) > 0 )
-    cFrameBuffer := ::oSocket:cReceivedData
+  DO WHILE ( ::oSocket:receive( @cFrameBuffer ) > 0 )
 
     DO WHILE ( Len( cFrameBuffer ) > 0 )
-      ? "Frame N: ", STR( ++i ), CRLF
-
       oStompFrame := oStompFrame:parse( @cFrameBuffer )
 
       IF ( !oStompFrame:isValid() )
-        FOR i := 1 TO oStompFrame:countErrors()
-          ? "ERRO: ", oStompFrame:aErrors[i]
-        NEXT
+        ? "FRAME INVALIDO", CHR_CRLF
+        BREAK
       ENDIF
 
       IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_MESSAGE )
-        ? "Frame Dump", CRLF, oStompFrame:build(), CRLF
+        ? "Mensagem recebida no subscribe", CHR_CRLF
+        ? oStompFrame:cBody
       ELSE
         IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
           ::cErrorMessage := oStompFrame:cBody
-          BREAK
+          ? "Erro recebido no subscribe", CHR_CRLF
         ENDIF
       ENDIF
 
     ENDDO
 
-  ENDIF
+  ENDDO
   RETURN ( nil )
 
 METHOD ack( cMessageId ) CLASS TStompClient
