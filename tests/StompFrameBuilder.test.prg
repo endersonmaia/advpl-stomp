@@ -7,6 +7,8 @@ CLASS TTestStompFrameBuilder FROM TTestCase
   METHOD testBuildConnectFrameWithoutHost()
   METHOD testBuildConnectFrameWithLoginInfo()
   METHOD testBuildSubscribeFrame()
+  METHOD testBuildAckFrame()
+  METHOD testBuildNackFrame()
 
 ENDCLASS
 
@@ -58,5 +60,27 @@ METHOD testBuildDisconectFrame() CLASS TTestStompFrameBuilder
    ::assert:true( oStompFrame:isValid(), "frame should be valid" )
    ::assert:equals( oStompFrame:cCommand, STOMP_CLIENT_COMMAND_SUBSCRIBE, "Frame command should be SUBSCRIBE" )
    ::assert:equals( LEN( oStompFrame:getHeaderValue( STOMP_ID_HEADER ) ), LEN( HBSTOMP_IDS_PREFIX ) + HBSTOMP_IDS_LENGHT, "the size of id header should match" )
+
+ RETURN ( nil )
+
+ METHOD testBuildAckFrame() CLASS TTestStompFrameBuilder
+   LOCAL oStompFrame
+
+   oStompFrame := TStompFrameBuilder():buildAckFrame( "ack-id-01" )
+
+   ::assert:true( oStompFrame:isValid(), "frame should be valid" )
+   ::assert:equals( oStompFrame:cCommand, STOMP_CLIENT_COMMAND_ACK, "Frame command should be ACK" )
+   ::assert:equals( oStompFrame:getHeaderValue( STOMP_ID_HEADER), "ack-id-01", "header id should be ack-id-01" )
+
+ RETURN ( nil )
+
+ METHOD testBuildNackFrame() CLASS TTestStompFrameBuilder
+   LOCAL oStompFrame
+
+   oStompFrame := TStompFrameBuilder():buildNackFrame( "ack-id-01" )
+
+   ::assert:true( oStompFrame:isValid(), "frame should be valid" )
+   ::assert:equals( oStompFrame:cCommand, STOMP_CLIENT_COMMAND_NACK, "Frame command should be NACK" )
+   ::assert:equals( oStompFrame:getHeaderValue( STOMP_ID_HEADER), "ack-id-01", "header id should be ack-id-01" )
 
  RETURN ( nil )

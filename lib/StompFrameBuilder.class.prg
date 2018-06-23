@@ -6,6 +6,8 @@ CLASS TStompFrameBuilder
   METHOD buildSendFrame( cDestination, cMessage )
   METHOD buildSubscribeFrame( cDestination )
   METHOD buildDisconnectFrame( cReceipt )
+  METHOD buildAckFrame( cMessageId )
+  METHOD buildNackFrame( cMessageId )
 
 ENDCLASS
 
@@ -58,5 +60,23 @@ METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_SUBSCRIBE )
   oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, cDestination ) )
   oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cID ) )
+
+  RETURN ( oStompFrame )
+
+METHOD buildAckFrame( cAckId )
+  LOCAL oStompFrame
+
+  oStompFrame := TStompFrame():new()
+  oStompFrame:setCommand( STOMP_CLIENT_COMMAND_ACK )
+  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cAckId ) )
+
+  RETURN ( oStompFrame )
+
+METHOD buildNackFrame( cNackId )
+  LOCAL oStompFrame
+
+  oStompFrame := TStompFrame():new()
+  oStompFrame:setCommand( STOMP_CLIENT_COMMAND_NACK )
+  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cNackId ) )
 
   RETURN ( oStompFrame )

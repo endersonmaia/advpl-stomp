@@ -18,6 +18,8 @@ CLASS TStompClient
   METHOD readFrame()
   METHOD countFramesToRead()
   METHOD addFrame()
+  METHOD ack( cAckId )
+  METHOD nack( cNackId )
 
   DATA lRequireReceipt INIT .F.
 
@@ -183,3 +185,21 @@ METHOD readFrame() CLASS TStompClient
   LOCAL oStompFrame
 
   RETURN ( oStompFrame )
+
+METHOD ack( cAckId ) CLASS TStompClient
+  LOCAL oStompFrame
+
+  oStompFrame := ::oStompFrameBuilder:buildAckFrame( cMessageId )
+
+  ::oSocket:send( oStompFrame:build(.F.) )
+
+  RETURN ( NIL )
+
+METHOD nack( cNackId ) CLASS TStompClient
+  LOCAL oStompFrame
+
+  oStompFrame := ::oStompFrameBuilder:buildAckFrame( cNackId )
+
+  ::oSocket:send( oStompFrame:build(.F.) )
+
+  RETURN ( NIL )
