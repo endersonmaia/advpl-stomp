@@ -310,11 +310,13 @@ METHOD testParseTwoFrames() CLASS TTestStompFrame
 
   ::assert:equals( "COMMAND_ONE", oParsedFrame:cCommand, "cCommand should be COMMAND_ONE")
   ::assert:equals( "Body One", oParsedFrame:cBody, "cBody shoud be 'Body One'")
+  ::assert:equals( LEN( oParsedFrame:build(.F.) ) - 1, LEN ( cStompFrameOne ), " oParsedFrame shold have the same size as cStompFrameOne" )
 
   oParsedFrame := oParsedFrame:parse( @cStompFrame )
 
   ::assert:equals( "COMMAND_TWO", oParsedFrame:cCommand, "cCommand should be COMMAND_TWO")
   ::assert:equals( "Body Two SUPER SIZE", oParsedFrame:cBody, "cBody shoud be 'Body Two'")
+  ::assert:equals( LEN( oParsedFrame:build(.F.) ) - 1, LEN ( cStompFrameTwo ), " oParsedFrame shold have the same size as cStompFrameTwo" )
 
   RETURN ( NIL )
 

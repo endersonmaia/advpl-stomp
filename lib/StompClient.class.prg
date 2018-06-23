@@ -48,6 +48,8 @@ METHOD new( cHost, nPort, cLogin, cPassword , cDestination, lSendReceipt ) CLASS
   ::nPort := nPort
   ::cDestination := cDestination
 
+  oStompFrameBuilder := TStompFrameBuilder:new()
+
   IIF( ValType(lSendReceipt) != 'U', ::lSendReceipt := lSendReceipt, ::lSendReceipt := .F. )
 
   IF ( ValType(cLogin) == 'C' .AND. ValType(cPassword) == 'C')
