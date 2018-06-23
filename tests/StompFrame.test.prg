@@ -20,7 +20,7 @@ CLASS TTestStompFrame FROM TTestCase
   METHOD testValidateCommandAckHeaders()
   METHOD testValidateCommandNackHeaders()
   METHOD testValidateCommandsMustNotHaveBody()
-  METHOD testParseConnectFrame()
+  METHOD testParseOneFrame()
   METHOD testParseTwoFrames()
   METHOD testRemoveAllHeaders()
 
@@ -133,14 +133,6 @@ METHOD testValidateConnectRequiredHeaders() CLASS TTestStompFrame
   ::assert:false( ::oStompFrame:isValid(), "should be false CONNECT with just one required header" )
   ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_HOST_HEADER, "127.0.0.1" ) )
   ::assert:true( ::oStompFrame:isValid(), "should be true CONNECT with all required headers" )
-
-  ::clearFrame()
-  ::oStompFrame:setCommand( "STOMP" )
-  ::assert:false( ::oStompFrame:isValid(), "should be false STOMP without required headers")
-  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACCEPT_VERSION_HEADER, "1.2" ) )
-  ::assert:false( ::oStompFrame:isValid(), "should be false STOMP with just one required header" )
-  ::oStompFrame:addHeader( TStompFrameHeader():new( STOMP_HOST_HEADER, "127.0.0.1" ) )
-  ::assert:true( ::oStompFrame:isValid(), "should be true STOMP with all required headers" )
 
   RETURN ( NIL )
 
@@ -265,7 +257,7 @@ METHOD testValidateCommandsMustNotHaveBody() CLASS TTestStompFrame
 
   RETURN ( NIL )
 
-METHOD testParseConnectFrame() CLASS TTestStompFrame
+METHOD testParseOneFrame() CLASS TTestStompFrame
   LOCAL cStompFrame := "", oParsedFrame, oError
 
   // EOL is optional CR + LF or obrigatory LF
@@ -308,7 +300,7 @@ METHOD testParseTwoFrames() CLASS TTestStompFrame
   cStompFrameTwo += "header1:value1" + CHR_LF
   cStompFrameTwo += "header2:value2" + CHR_CRLF
   cStompFrameTwo += CHR_CRLF
-  cStompFrameTwo += "Body Two"       + CHR_NULL
+  cStompFrameTwo += "Body Two SUPER SIZE"       + CHR_NULL
   cStompFrameTwo += CHR_CRLF         // OPTIONAL
 
   cStompFrame := cStompFrameOne + cStompFrameTwo
@@ -322,7 +314,7 @@ METHOD testParseTwoFrames() CLASS TTestStompFrame
   oParsedFrame := oParsedFrame:parse( @cStompFrame )
 
   ::assert:equals( "COMMAND_TWO", oParsedFrame:cCommand, "cCommand should be COMMAND_TWO")
-  ::assert:equals( "Body Two", oParsedFrame:cBody, "cBody shoud be 'Body Two'")
+  ::assert:equals( "Body Two SUPER SIZE", oParsedFrame:cBody, "cBody shoud be 'Body Two'")
 
   RETURN ( NIL )
 

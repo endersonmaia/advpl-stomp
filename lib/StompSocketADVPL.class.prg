@@ -7,7 +7,7 @@ CLASS TStompSocketADVPL FROM TStompSocket
 
   METHOD connect( cHost, nPort )
   METHOD send( cStompFrame )
-  METHOD receive()
+  METHOD receive( cReceivedData )
   METHOD disconnect()
 
 ENDCLASS

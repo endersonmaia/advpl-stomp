@@ -16,7 +16,7 @@ METHOD buildConnectFrame( cHost, cLogin, cPassCode ) CLASS TStompFrameBuilder
   LOCAL oStompFrame
 
   oStompFrame := TStompFrame():new()
-  oStompFrame:setCommand( STOMP_CLIENT_COMMAND_STOMP )
+  oStompFrame:setCommand( STOMP_CLIENT_COMMAND_CONNECT )
   oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACCEPT_VERSION_HEADER, STOMP_ACCEPTED_VERSIONS ) )
 
   IF ( ValType(cHost) == 'C' )
@@ -63,20 +63,20 @@ METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
 
   RETURN ( oStompFrame )
 
-METHOD buildAckFrame( cAckId )
+METHOD buildAckFrame( cMessageId )
   LOCAL oStompFrame
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_ACK )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cAckId ) )
+  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cMessageId ) )
 
   RETURN ( oStompFrame )
 
-METHOD buildNackFrame( cNackId )
+METHOD buildNackFrame( cMessageId )
   LOCAL oStompFrame
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_NACK )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cNackId ) )
+  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cMessageId ) )
 
   RETURN ( oStompFrame )

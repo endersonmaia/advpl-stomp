@@ -1,7 +1,6 @@
 #ifndef _STOMP_CH
 #define _STOMP_CH
-
-  #define DEBUG
+#define DEBUG
 
   #ifdef PROTHEUS
     #define __PROTHEUS__

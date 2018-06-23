@@ -9,7 +9,6 @@ CLASS TStompFrame
 
   CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP", "MESSAGE", "CONNECTED" }
 
-  HIDDEN:
   // Validations
   METHOD validateCommand()
   METHOD validateHeader()
@@ -26,7 +25,7 @@ CLASS TStompFrame
 
   EXPORTED:
   METHOD new() CONSTRUCTOR
-  METHOD build()
+  METHOD build(lCheck)
   METHOD parse( cStompFrame )
 
   // Content

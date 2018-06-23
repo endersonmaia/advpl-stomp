@@ -6,7 +6,7 @@ build:
 	hbmk2 makefile.hbp
 
 test:
-	hbmk2 -run tests.hbp
+	hbmk2 -run -v tests.hbp
 
 clean:
 	rm libhbunit.*
