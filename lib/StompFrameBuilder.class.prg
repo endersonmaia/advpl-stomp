@@ -2,6 +2,7 @@
 
 CLASS TStompFrameBuilder
 
+  METHOD new() CONSTRUCTOR
   METHOD buildConnectFrame( cHost, cLogin, cPassCode )
   METHOD buildSendFrame( cDestination, cMessage )
   METHOD buildSubscribeFrame( cDestination )
@@ -10,6 +11,9 @@ CLASS TStompFrameBuilder
   METHOD buildNackFrame( cMessageId )
 
 ENDCLASS
+
+METHOD new() CLASS TStompFrameBuilder
+  RETURN ( SELF )
 
 //TODO - implement build of heart-beat header for CONNECT frame
 METHOD buildConnectFrame( cHost, cLogin, cPassCode ) CLASS TStompFrameBuilder
@@ -54,12 +58,12 @@ METHOD buildDisconnectFrame() CLASS TStompFrameBuilder
 METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
   LOCAL oStompFrame, cID := ""
 
-  cID := HBSTOMP_IDS_PREFIX + RandonAlphabet( HBSTOMP_IDS_LENGHT )
+  cID := HBSTOMP_IDS_PREFIX + _randomAlphabet( HBSTOMP_IDS_LENGHT )
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_SUBSCRIBE )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, cDestination ) )
   oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cID ) )
+  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, cDestination ) )
 
   RETURN ( oStompFrame )
 

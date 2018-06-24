@@ -1,56 +1,101 @@
+#ifndef __HARBOUR__
 #include "stomp.ch"
 
-#ifdef __PROTHEUS__
-// See : http://tdn.totvs.com/display/tec/TSocketClient
+CLASS TStompSocket
 
-CLASS TStompSocketADVPL FROM TStompSocket
-
+  METHOD new() CONSTRUCTOR
   METHOD connect( cHost, nPort )
   METHOD send( cStompFrame )
-  METHOD receive( cReceivedData )
+  METHOD receive( @cReceivedData )
   METHOD disconnect()
+  METHOD isConnected()
+
+HIDDEN:
+  DATA hSocket
+  DATA nStatus
+  DATA oError
+  DATA cBuffer
+  DATA cReceivedData
+  DATA cHost
+  DATA nPort
+  DATA lConnected
 
 ENDCLASS
 
-METHOD connect( cHost, nPort ) CLASS TStompSocketADVPL
+METHOD new() CLASS TStompSocket
+  ::lConnected := .F.
+  RETURN ( SELF )
 
-  ::hSocket    := tSocketClient():new()
-  ::hSocket:Connect( nPort, cHost, 10 )
+METHOD connect( cHost, nPort ) CLASS TStompSocket
 
-  IIF (::hSocket:IsConnected(), ::nStatus := STOMP_SOCKET_STATUS_CONNECTED, ::nStatus := STOMP_SOCKET_STATUS_CONNECTION_FAILED)
+  BEGIN SEQUENCE
 
-  RETURN ( nil )
+  ::hSocket := TSocketClient():new()
+  ::nStatus := ::hSocket:connect( nPort , cHost, STOMP_SOCKET_CONNECTION_TIMEOUT )
 
-
-METHOD send( cStompFrame ) CLASS TStompSocketADVPL
-  
-  ::cReceivedData := ::hSocket:send( cStompFrame )
-
-  IF ( ::cReceivedData == Len(cStompFrame) )
-    ::nStatus := STOMP_SOCKET_STATUS_DATA_SENT
+  IF (::nStatus == 0) .AND. ::hSocket:isConnected()
+    ::lConnected := .T.
   ELSE
-    ::nStatus := STOMP_SOCKET_STATUS_SEND_FAILED
+    ::disconnect()
+    BREAK
   ENDIF
 
-  RETURN ( nil )
+  END SEQUENCE
 
-METHOD receive() CLASS TStompSocketADVPL
+  RETURN ( NIL )
 
-  cBuffer := ""
-  nResp := oObj:Receive( @cBuffer, 10000 ) 
-  if( nResp >= 0 )
-      conout( "--> Dados Recebidos " + StrZero(nResp,5) )
-      conout( "--> ["+cBuffer+"]" )
-  else
-      conout( "--> Não recebi dados" )
-  endif
+METHOD send( cStompFrame ) CLASS TStompSocket
+  LOCAL nSocketSend, nSocketReceive
 
-  RETURN ( nil )
+  nSocketSend := ::hSocket:send( cStompFrame )
 
-METHOD disconnect() CLASS TStompSocketADVPL
+  IF ( nSocketSend == Len( cStompFrame ) )
 
-  oObj:CloseConnection()
+    #ifdef DEBUG
+    ? ">>>>", CHR_CRLF
+    ? ALLTRIM( cStompFrame) , CHR_CRLF
+    ? "^^^^", CHR_CRLF
+    #endif
 
-  RETURN ( nil )
+    nSocketReceive := ::hSocket:receive( ::cReceivedData , STOMP_SOCKET_CONNECTION_TIMEOUT )
 
-#endif
+    IF ( ! nSocketReceive > 0 )
+      ? "TSocketClient - Sem Resposta a requisicao", CHR_CRLF
+    EndIF
+  ELSE
+    ? "TSocketClient - Problemas no Enviamos da Mensagem", CHR_CRLF
+  ENDIF
+
+  RETURN ( NIL )
+
+METHOD receive( cReceivedData ) CLASS TStompSocket
+  LOCAL cBuffer := SPACE( STOMP_SOCKET_BUFFER_SIZE )
+  LOCAL nLen := 0
+
+  ::cReceivedData := ""
+  nLen := ::hSocket:receive( @cBuffer, STOMP_SOCKET_BUFFER_SIZE )
+  IF( nLen >= 0 )
+    ::cReceivedData := cBuffer
+    cReceivedData := ::cReceivedData
+  ENDIF
+
+  #ifdef DEBUG
+  ? "<<<<", CHR_CRLF
+  ? ALLTRIM( cBuffer ) , CHR_CRLF
+  ? "^^^^", CHR_CRLF
+  #endif
+
+  RETURN ( nLen )
+
+METHOD disconnect() CLASS TStompSocket
+
+  ::hSocket:CloseConnection()
+  ::hSocket := NIL
+  ::lConnected := .F.
+
+  RETURN ( NIL )
+
+METHOD isConnected() CLASS TStompSocket
+  RETURN ( ::hSocket:isConnected() .AND. ::lConnected )
+
+#endif // #ifndef __HARBOUR__

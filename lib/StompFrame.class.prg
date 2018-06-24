@@ -2,26 +2,20 @@
 
 CLASS TStompFrame
 
-  DATA cCommand INIT "" READONLY
-  DATA aHeaders INIT {} READONLY
-  DATA cBody INIT "" READONLY
-  DATA aErrors INIT {} READONLY
-
-  CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP", "MESSAGE", "CONNECTED" }
+  DATA cCommand
+  DATA aHeaders
+  DATA cBody
+  DATA aErrors
+  DATA aStompFrameTypes
 
   // Validations
   METHOD validateCommand()
   METHOD validateHeader()
   METHOD validateBody()
 
-  #ifdef __PROTHEUS__
-    #xtranslate parseExtractCommand( <x> ) => parseEC( <x> )
-    #xtranslate parseExtractHeaders( <x> ) => parseEH( <x> )
-    #xtranslate parseExtractBody( <x> ) => parseEB( <x> )
-  #endif
-  METHOD parseExtractCommand( cStompFrame )
-  METHOD parseExtractHeaders( cStompFrame )
-  METHOD parseExtractBody( cStompFrame )
+  METHOD prsExCmd( cStompFrame )
+  METHOD prsExHd( cStompFrame )
+  METHOD prsExBd( cStompFrame )
 
   EXPORTED:
   METHOD new() CONSTRUCTOR
@@ -51,7 +45,12 @@ METHOD countErrors() CLASS TStompFrame
   RETURN ( LEN( ::aErrors ) )
 
 METHOD new() CLASS TStompFrame
-  RETURN SELF
+  ::aHeaders := {}
+  ::aErrors := {}
+  ::cCommand := ""
+  ::cBody := ""
+  ::aStompFrameTypes := STOMP_COMMANDS
+  RETURN ( SELF )
 
 METHOD addHeader( oStompFrameHeader ) CLASS TStompFrame
   AADD( ::aHeaders, oStompFrameHeader )
@@ -155,10 +154,10 @@ METHOD validateBody() CLASS TStompFrame
 METHOD isValid() CLASS TStompFrame
   RETURN ( ::validateCommand() .AND. ::validateHeader() .AND. ::validateBody() )
 
-METHOD build() CLASS TStompFrame
+METHOD build(lCheck) CLASS TStompFrame
   LOCAL cStompFrame := "", i
 
-  IF !::isValid()
+  IF !::isValid() .AND. lCheck != .F.
     RETURN ( .F. )
   ENDIF
 
@@ -194,13 +193,13 @@ METHOD parse( cStompFrame ) CLASS TStompFrame
 
   oStompFrame := TStompFrame():new()
 
-  oStompFrame:cCommand  := ::parseExtractCommand( @cStompFrame )
-  IIF ( ( oStompFrame:cCommand != STOMP_SERVER_COMMAND_ERROR ), oStompFrame:aHeaders := ::parseExtractHeaders( @cStompFrame ), )
-  oStompFrame:cBody     := ::parseExtractBody( @cStompFrame )
+  oStompFrame:cCommand  := ::prsExCmd( @cStompFrame )
+  IIF ( ( oStompFrame:cCommand != STOMP_SERVER_COMMAND_ERROR ), oStompFrame:aHeaders := ::prsExHd( @cStompFrame ), )
+  oStompFrame:cBody     := ::prsExBd( @cStompFrame )
 
   RETURN ( oStompFrame )
 
-METHOD parseExtractCommand( cStompFrame ) CLASS TStompFrame
+METHOD prsExCmd( cStompFrame ) CLASS TStompFrame
   LOCAL nLen      := 0,   ;
         nLastPos  := 0,   ;
         cCommand  := ""
@@ -212,7 +211,7 @@ METHOD parseExtractCommand( cStompFrame ) CLASS TStompFrame
 
   RETURN ( cCommand )
 
-METHOD parseExtractHeaders( cStompFrame ) CLASS TStompFrame
+METHOD prsExHd( cStompFrame ) CLASS TStompFrame
   LOCAL nLen          := 0,   ;
         nLastPos      := 0,   ;
         cHeaders      := "",  ;
@@ -245,7 +244,7 @@ METHOD parseExtractHeaders( cStompFrame ) CLASS TStompFrame
 
   RETURN ( aHeaders )
 
-METHOD parseExtractBody( cStompFrame ) CLASS TStompFrame
+METHOD prsExBd( cStompFrame ) CLASS TStompFrame
   LOCAL nLen          := 0,   ;
         nLastPos      := 0
 

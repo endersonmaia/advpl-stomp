@@ -1,5 +1,8 @@
-//TODO - implement real randomness ;)
-FUNCTION RandonAlphabet(nLen)
+#ifndef _STOMP_UTILS_CH
+#define _STOMP_UTILS_CH
+
+STATIC FUNCTION _randomAlphabet(nLen)
+
   LOCAL i := 0, cReturn := "",seconds := Seconds()
 
   DO WHILE (i < nLen)
@@ -16,3 +19,5 @@ FUNCTION RandonAlphabet(nLen)
   ENDDO
 
   RETURN ( cReturn )
+
+#endif
