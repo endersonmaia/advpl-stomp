@@ -110,7 +110,7 @@ METHOD publish( cDestination, cMessage ) CLASS TStompClient
   oStompFrame := ::oStompFrameBuilder:buildSendFrame( cDestination, cMessage )
 
   IF ( ::lSendReceipt == .T. )
-    cReceiptID := HBSTOMP_IDS_PREFIX + _randomAlphabet( HBSTOMP_IDS_LENGHT )
+    cReceiptID := TSTOMP_IDS_PREFIX + _randomAlphabet( TSTOMP_IDS_LENGHT )
     oStompFrame:addHeader( TStompFrameHeader():new( STOMP_RECEIPT_HEADER,  cReceiptID) )
   ENDIF
 
@@ -142,7 +142,7 @@ METHOD disconnect() CLASS TStompClient
       oStompFrame := ::oStompFrameBuilder:buildDisconnectFrame()
 
       IF ( ::lSendReceipt == .T. )
-        cReceiptID := HBSTOMP_IDS_PREFIX + _randomAlphabet( HBSTOMP_IDS_LENGHT )
+        cReceiptID := TSTOMP_IDS_PREFIX + _randomAlphabet( TSTOMP_IDS_LENGHT )
         oStompFrame:addHeader( TStompFrameHeader():new( STOMP_RECEIPT_HEADER,  cReceiptID) )
       ENDIF
 

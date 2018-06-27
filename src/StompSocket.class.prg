@@ -1,4 +1,3 @@
-#ifndef __HARBOUR__
 #include "stomp.ch"
 
 CLASS TStompSocket
@@ -85,5 +84,3 @@ METHOD disconnect() CLASS TStompSocket
 
 METHOD isConnected() CLASS TStompSocket
   RETURN ( ::hSocket:isConnected() .AND. ::lConnected )
-
-#endif // #ifndef __HARBOUR__

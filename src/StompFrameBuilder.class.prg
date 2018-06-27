@@ -58,7 +58,7 @@ METHOD buildDisconnectFrame() CLASS TStompFrameBuilder
 METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
   LOCAL oStompFrame, cID := ""
 
-  cID := HBSTOMP_IDS_PREFIX + _randomAlphabet( HBSTOMP_IDS_LENGHT )
+  cID := TSTOMP_IDS_PREFIX + _randomAlphabet( TSTOMP_IDS_LENGHT )
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_SUBSCRIBE )
