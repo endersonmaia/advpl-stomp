@@ -17,7 +17,6 @@ CLASS TStompFrame
   METHOD prsExHd( cStompFrame )
   METHOD prsExBd( cStompFrame )
 
-  EXPORTED:
   METHOD new() CONSTRUCTOR
   METHOD build(lCheck)
   METHOD parse( cStompFrame )
@@ -110,7 +109,7 @@ METHOD validateHeader() CLASS TStompFrame
     IIF ( ::headerExists(STOMP_DESTINATION_HEADER), lReturn := .T., )
   CASE ::cCommand == "SUBSCRIBE"
     IIF ( ::headerExists(STOMP_DESTINATION_HEADER) .AND. ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
-    IIF ( lreturn == .T. .AND. ::headerExists(STOMP_ACK_HEADER) .AND. ASCAN( STOMP_ACK_MODES, ::getHeaderValue(STOMP_ACK_HEADER) ) = 0, lReturn := .F., )
+    IIF ( lReturn == .T. .AND. ::headerExists(STOMP_ACK_HEADER) .AND. ASCAN( STOMP_ACK_MODES, ::getHeaderValue(STOMP_ACK_HEADER) ) = 0, lReturn := .F., )
   CASE ::cCommand == "UNSUBSCRIBE" .OR. ::cCommand == "ACK" .OR. ::cCommand == "NACK"
     IIF ( ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
   CASE ::cCommand == "BEGIN" .OR. ::cCommand == "COMMIT" .OR. ::cCommand == "ABORT"
@@ -211,8 +210,7 @@ METHOD prsExHd( cStompFrame ) CLASS TStompFrame
         cHeaderName   := "",  ;
         cHeaderValue  := "",  ;
         aHeaders      := {},  ;
-        i             := 0,   ;
-        oHeader
+        i             := 0
 
   nLen        := Len ( cStompFrame )
   nLastPos    := AT( CHR_LF+CHR_LF, cStompFrame )

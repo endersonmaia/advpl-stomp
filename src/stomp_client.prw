@@ -71,7 +71,7 @@ METHOD connect() CLASS TStompClient
   ::oSocket := TSocketClient():new()
   nStatus := ::oSocket:connect( ::cHost, ::nPort, STOMP_SOCKET_CONNECTION_TIMEOUT )
 
-  IF ( nStatus == 0 .AND ::oSocket:isConnected() )
+  IF ( nStatus == 0 .AND. ::oSocket:isConnected() )
 
     IF ( ::lHasLoginData == .T. )
       oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination, ::cLogin, ::cPassword )
@@ -197,17 +197,17 @@ METHOD subscribe( cDestination, cAckMode ) CLASS TStompClient
       oStompFrame := oStompFrame:parse( @cFrameBuffer )
 
       IF ( !oStompFrame:isValid() )
-        ? "FRAME INVALIDO", CHR_CRLF
+        CONOUT( "FRAME INVALIDO" + CHR_CRLF ) 
         BREAK
       ENDIF
 
       IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_MESSAGE )
-        ? "Mensagem recebida no subscribe", CHR_CRLF
-        ? oStompFrame:cBody
+        CONOUT( "Mensagem recebida no subscribe" + CHR_CRLF )
+        CONOUT( oStompFrame:cBody + CHR_CRLF ) 
       ELSE
         IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
           ::cErrorMessage := oStompFrame:cBody
-          ? "Erro recebido no subscribe", CHR_CRLF
+          CONOUT( "Erro recebido no subscribe" + CHR_CRLF )
         ENDIF
       ENDIF
 
