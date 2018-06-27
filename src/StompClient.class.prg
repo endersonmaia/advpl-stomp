@@ -66,13 +66,12 @@ METHOD new( cHost, nPort, cLogin, cPassword , cDestination, lSendReceipt ) CLASS
   RETURN ( self )
 
 METHOD connect() CLASS TStompClient
-  LOCAL oStompFrame, cFrameBuffer, i
+  LOCAL oStompFrame, cFrameBuffer, i, nStatus
 
-  ::oSocket := TStompSocket():new()
-  ::oSocket:connect( ::cHost, ::nPort )
+  ::oSocket := TSocketClient():new()
+  nStatus := ::oSocket:connect( ::cHost, ::nPort, STOMP_SOCKET_CONNECTION_TIMEOUT )
 
-  IF ( ::oSocket:isConnected() )
-        ::lConnected := .T.
+  IF ( nStatus == 0 .AND ::oSocket:isConnected() )
 
     IF ( ::lHasLoginData == .T. )
       oStompFrame := ::oStompFrameBuilder:buildConnectFrame( ::cDestination, ::cLogin, ::cPassword )
@@ -82,7 +81,7 @@ METHOD connect() CLASS TStompClient
 
     ::oSocket:send( oStompFrame:build() )
 
-    IF ( ::oSocket:receive( @cFrameBuffer ) > 0 )
+    IF ( ::oSocket:receive( @cFrameBuffer, STOMP_SOCKET_BUFFER_SIZE ) > 0 )
       oStompFrame := oStompFrame:parse( cFrameBuffer )
 
       IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_CONNECTED )
@@ -117,7 +116,7 @@ METHOD publish( cDestination, cMessage ) CLASS TStompClient
   ::oSocket:send( oStompFrame:build(.F.) )
 
   //TODO - implementar tratamento do retorno, caso exista mensagem reply-to
-  IF ( ::oSocket:receive( @cFrameBuffer ) > 0 )
+  IF ( ::oSocket:receive( @cFrameBuffer, STOMP_SOCKET_BUFFER_SIZE ) > 0 )
     oStompFrame := oStompFrame:parse( cFrameBuffer )
 
     DO CASE
@@ -148,7 +147,7 @@ METHOD disconnect() CLASS TStompClient
 
       ::oSocket:send( oStompFrame:build() )
 
-      IF ( ::oSocket:receive( @cFrameBuffer ) > 0 )
+      IF ( ::oSocket:receive( @cFrameBuffer, STOMP_SOCKET_BUFFER_SIZE ) > 0 )
         oStompFrame := oStompFrame:parse( cFrameBuffer )
 
         DO CASE
@@ -192,7 +191,7 @@ METHOD subscribe( cDestination, cAckMode ) CLASS TStompClient
 
   ::oSocket:send( oStompFrame:build(.F.) )
 
-  DO WHILE ( ::oSocket:receive( @cFrameBuffer ) > 0 )
+  DO WHILE ( ::oSocket:receive( @cFrameBuffer, STOMP_SOCKET_BUFFER_SIZE ) > 0 )
 
     DO WHILE ( Len( cFrameBuffer ) > 0 )
       oStompFrame := oStompFrame:parse( @cFrameBuffer )
