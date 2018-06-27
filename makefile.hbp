@@ -1,8 +1,0 @@
--incpath=./include
--hblib
--ohbstomp
-./lib/StompFrame.class.prg
-./lib/StompFrameHeader.class.prg
-./lib/StompSocketHarbour.class.prg
-./lib/StompClient.class.prg
-./lib/StompFrameBuilder.class.prg
