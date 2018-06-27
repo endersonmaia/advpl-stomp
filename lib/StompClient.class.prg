@@ -22,7 +22,6 @@ CLASS TStompClient
 
   DATA lRequireReceipt INIT .F.
 
-  HIDDEN:
   DATA oSocket
   DATA cHost
   DATA nPort

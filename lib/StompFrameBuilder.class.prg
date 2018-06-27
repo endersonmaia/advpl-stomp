@@ -67,7 +67,7 @@ METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
 
   RETURN ( oStompFrame )
 
-METHOD buildAckFrame( cMessageId )
+METHOD buildAckFrame( cMessageId ) CLASS TStompFrameBuilder
   LOCAL oStompFrame
 
   oStompFrame := TStompFrame():new()
@@ -76,7 +76,7 @@ METHOD buildAckFrame( cMessageId )
 
   RETURN ( oStompFrame )
 
-METHOD buildNackFrame( cMessageId )
+METHOD buildNackFrame( cMessageId ) CLASS TStompFrameBuilder
   LOCAL oStompFrame
 
   oStompFrame := TStompFrame():new()

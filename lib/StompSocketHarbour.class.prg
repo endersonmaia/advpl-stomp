@@ -43,16 +43,17 @@ METHOD connect( cHost, nPort ) CLASS TStompSocket
   RETURN( NIL )
 
 METHOD send( cStompFrame ) CLASS TStompSocket
+  LOCAL nSocketSend
 
-  hb_socketSend( ::hSocket, ALLTRIM( cStompFrame ) )
+  nSocketSend := hb_socketSend( ::hSocket, ALLTRIM( cStompFrame ) )
 
   #ifdef DEBUG
   ? ">>>>", CHR_CRLF
-  ? cStompFrame, CHR_CRLF
+  ? ALLTRIM( cStompFrame ), CHR_CRLF
   ? "^^^^", CHR_CRLF
   #endif
 
- RETURN ( NIL )
+ RETURN ( nSocketSend )
 
 //TODO - handle errors
 //TODO - handle reconnections
@@ -70,7 +71,7 @@ METHOD receive( cReceivedData ) CLASS TStompSocket
 
   #ifdef DEBUG
   ? "<<<<", CHR_CRLF
-  ? cBuffer, CHR_CRLF
+  ? ALLTRIM( cBuffer ), CHR_CRLF
   ? "^^^^", CHR_CRLF
   #endif
 
@@ -81,7 +82,6 @@ METHOD disconnect() CLASS TStompSocket
   ::lConnected := .F.
   hb_socketShutdown( ::hSocket )
   hb_socketClose( ::hSocket )
-
   ::hSocket := nil
 
   RETURN ( NIL )

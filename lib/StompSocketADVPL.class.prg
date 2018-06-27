@@ -6,11 +6,10 @@ CLASS TStompSocket
   METHOD new() CONSTRUCTOR
   METHOD connect( cHost, nPort )
   METHOD send( cStompFrame )
-  METHOD receive( @cReceivedData )
+  METHOD receive( cReceivedData )
   METHOD disconnect()
   METHOD isConnected()
 
-HIDDEN:
   DATA hSocket
   DATA nStatus
   DATA oError
@@ -45,28 +44,17 @@ METHOD connect( cHost, nPort ) CLASS TStompSocket
   RETURN ( NIL )
 
 METHOD send( cStompFrame ) CLASS TStompSocket
-  LOCAL nSocketSend, nSocketReceive
+  LOCAL nSocketSend
 
-  nSocketSend := ::hSocket:send( cStompFrame )
+  nSocketSend := ::hSocket:send( ALLTRIM ( cStompFrame ) )
 
-  IF ( nSocketSend == Len( cStompFrame ) )
+  #ifdef DEBUG
+  ? ">>>>", CHR_CRLF
+  ? ALLTRIM( cStompFrame) , CHR_CRLF
+  ? "^^^^", CHR_CRLF
+  #endif
 
-    #ifdef DEBUG
-    ? ">>>>", CHR_CRLF
-    ? ALLTRIM( cStompFrame) , CHR_CRLF
-    ? "^^^^", CHR_CRLF
-    #endif
-
-    nSocketReceive := ::hSocket:receive( ::cReceivedData , STOMP_SOCKET_CONNECTION_TIMEOUT )
-
-    IF ( ! nSocketReceive > 0 )
-      ? "TSocketClient - Sem Resposta a requisicao", CHR_CRLF
-    EndIF
-  ELSE
-    ? "TSocketClient - Problemas no Enviamos da Mensagem", CHR_CRLF
-  ENDIF
-
-  RETURN ( NIL )
+  RETURN ( nSocketSend )
 
 METHOD receive( cReceivedData ) CLASS TStompSocket
   LOCAL cBuffer := SPACE( STOMP_SOCKET_BUFFER_SIZE )
@@ -75,7 +63,7 @@ METHOD receive( cReceivedData ) CLASS TStompSocket
   ::cReceivedData := ""
   nLen := ::hSocket:receive( @cBuffer, STOMP_SOCKET_BUFFER_SIZE )
   IF( nLen >= 0 )
-    ::cReceivedData := cBuffer
+    ::cReceivedData := ALLTRIM( cBuffer )
     cReceivedData := ::cReceivedData
   ENDIF
 
@@ -89,7 +77,7 @@ METHOD receive( cReceivedData ) CLASS TStompSocket
 
 METHOD disconnect() CLASS TStompSocket
 
-  ::hSocket:CloseConnection()
+  ::hSocket:closeConnection()
   ::hSocket := NIL
   ::lConnected := .F.
 

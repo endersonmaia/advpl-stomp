@@ -7,9 +7,8 @@ CLASS TStompFrameHeader
   METHOD getName()
   METHOD getValue()
 
-  HIDDEN:
-    DATA cName
-    DATA cValue
+  DATA cName
+  DATA cValue
 
 ENDCLASS
 

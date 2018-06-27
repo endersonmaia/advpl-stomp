@@ -95,7 +95,7 @@ METHOD headerExists( cHeaderName ) CLASS TStompFrame
   RETURN ( lReturn )
 
 METHOD getHeaderValue( cHeaderName ) CLASS TStompFrame
-  LOCAL uReturn := nil
+  LOCAL uReturn := nil, i
 
   FOR i := 1 TO ::countHeaders()
     IIF ( (::aHeaders[i]:getName() == cHeaderName), uReturn := ::aHeaders[i]:getValue(),  )
@@ -182,10 +182,6 @@ METHOD build(lCheck) CLASS TStompFrame
 METHOD parse( cStompFrame ) CLASS TStompFrame
   LOCAL nLen          := 0 ,  ;
         nLastPos      := 0 ,  ;
-        cHeader       := "",  ;
-        cHeaderName   := "",  ;
-        cHeaderValue  := "",  ;
-        oHeader            ,  ;
         oStompFrame
 
   // Cleaning cStompFrame from CRLF to LF only
@@ -194,7 +190,7 @@ METHOD parse( cStompFrame ) CLASS TStompFrame
   oStompFrame := TStompFrame():new()
 
   oStompFrame:cCommand  := ::prsExCmd( @cStompFrame )
-  IIF ( ( oStompFrame:cCommand != STOMP_SERVER_COMMAND_ERROR ), oStompFrame:aHeaders := ::prsExHd( @cStompFrame ), )
+  oStompFrame:aHeaders := ::prsExHd( @cStompFrame )
   oStompFrame:cBody     := ::prsExBd( @cStompFrame )
 
   RETURN ( oStompFrame )
