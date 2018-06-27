@@ -25,7 +25,8 @@ CLASS TStompFrame
   // Content
   METHOD setCommand( cCommand )
   METHOD setBody( cBody )
-  METHOD addHeader( oStompFrameHeader )
+  METHOD buildHeader( cName, cValue )
+  METHOD addHeader( cName, cValue )
   METHOD removeAllHeaders()
   METHOD getHeaderValue( cHeaderName )
 
@@ -52,8 +53,8 @@ METHOD new() CLASS TStompFrame
   ::aStompFrameTypes := STOMP_COMMANDS
   RETURN ( SELF )
 
-METHOD addHeader( oStompFrameHeader ) CLASS TStompFrame
-  AADD( ::aHeaders, oStompFrameHeader )
+METHOD addHeader( cName, cValue ) CLASS TStompFrame
+  AADD( ::aHeaders, ::buildHeader( cName, cValue ) )
   RETURN ( NIL )
 
 METHOD addError( cError ) CLASS TStompFrame
@@ -61,20 +62,16 @@ METHOD addError( cError ) CLASS TStompFrame
   RETURN ( NIL )
 
 METHOD setCommand( cCommand ) CLASS TStompFrame
-
   ::cCommand := UPPER(cCommand)
-
   RETURN ( NIL )
 
 METHOD setBody( cBody ) CLASS TStompFrame
-
   ::cBody := cBody
-
   RETURN ( NIL )
 
 METHOD removeAllHeaders() CLASS TStompFrame
   ::aHeaders := ARRAY(0)
-  RETURN ( nil )
+  RETURN ( NIL )
 
 METHOD validateCommand() CLASS TStompFrame
   LOCAL lReturn := .F.
@@ -228,7 +225,7 @@ METHOD prsExHd( cStompFrame ) CLASS TStompFrame
     cHeaderName   := LEFT( cHeaders, AT( ":", cHeaders ) - 1 )
     cHeaderValue  := SUBSTR( cHeaders, AT( ":", cHeaders ) + 1, AT( CHR_LF, cHeaders) - AT( ":", cHeaders ) - 1)
 
-    AADD( aHeaders, TStompFrameHeader():new( cHeaderName, cHeaderValue ) )
+    AADD( aHeaders, ::buildHeader( cHeaderName, cHeaderValue ) )
 
     cHeaders      := SUBSTR(  cHeaders, ;
                               Len( CHR_LF ) + Len( cHeaderName ) + Len( ":" ) + Len( cHeaderValue ) + Len( CHR_LF ), ;
