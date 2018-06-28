@@ -1,6 +1,6 @@
-# hbstomp [![Build Status](https://travis-ci.org/endersonmaia/hbstomp.svg)](https://travis-ci.org/endersonmaia/hbstomp)
+# advpl-stomp
 
-Library for Harbour/ADVPL that implements STOMP messaging protocol (http://stomp.github.io).
+Library for ADVPL that implements STOMP messaging protocol (http://stomp.github.io).
 
 ## Goals
 
@@ -9,7 +9,7 @@ These are the initial goals of this library
 - Build and validates a message;
 - Send messages to STOMP Server;
 - Parse STOMP server responses;
-- Learn Harbour and ADVPL programming;
+- Learn ADVPL programming;
 - Get rich :moneybag: ;
 
 ## How-to Use it
@@ -17,24 +17,30 @@ These are the initial goals of this library
 With this version, you can build and send basic STOMP Client Frames. Subscribing to STOMP queues isn't working at the moment.
 
 ````xbase
-PROCEDURE MAIN()
+#include 'totvs.ch'
+#include 'stomp.ch'
 
-  oStompClient := TStompClient():new("127.0.0.1", 61613)
+USER FUNCTION STOMP
+
+  LOCAL oStompClient, oLogger
+
+  oLogger := Logger():New( 'ADVPL-STOMP' )
+  oStompClient := TStompClient():new("127.0.0.1", 61613, "user", "password", "vhost")
   oStompClient:connect()
 
   IF ( oStompClient:isConnected() )
+    oLogger:Info( "Connected to 127.0.0.1" )
 
-    oStompClient:publish( "/queue/hbstomp", "First message." )
-    oStompClient:publish( "/queue/hbstomp", "Second message!" )
+    oStompClient:publish( "/queue/advpl", "First message from ADVPL!" )
+
+    oStompClient:subscribe( "/queue/hbstomp", "auto", , {|msg, oFrame| oLogger:Info("Mensagem : {1} {2}", { msg, oFrame:getHeaderValue("message-id") } ) } )
 
     oStompClient:disconnect()
   ELSE
-    OutStd( "Failed to connect.", hb_EOL() )
-    OutStd( "Message: ", oStompClient:getErrorMessage(), hb_EOL() )
-    ErrorLevel(1)
+    oLogger:Error( "Failed to connect" )
   ENDIF
   
-  RETURN ( NIL )
+RETURN
 ````
 
 # License
