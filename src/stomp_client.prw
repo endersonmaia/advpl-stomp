@@ -195,29 +195,37 @@ METHOD subscribe( cDestination, cAckMode ) CLASS TStompClient
 
   ::oSocket:send( oStompFrame:build(.F.) )
 
-  DO WHILE ( ::oSocket:receive( @cFrameBuffer, STOMP_SOCKET_BUFFER_SIZE ) > 0 )
+  IF( ::oSocket:send( oStompFrame:build(.F.) ) == oStompFrame:getSize( ) )
 
-    DO WHILE ( Len( cFrameBuffer ) > 0 )
-      oStompFrame := oStompFrame:parse( @cFrameBuffer )
+    DO WHILE ( ::oSocket:receive( @cFrameBuffer, STOMP_SOCKET_BUFFER_SIZE ) > 0 )
 
-      IF ( !oStompFrame:isValid() )
-        CONOUT( "FRAME INVALIDO" + CHR_CRLF ) 
-        BREAK
-      ENDIF
+      DO WHILE ( Len( cFrameBuffer ) > 0 )
+        oStompFrame := oStompFrame:parse( @cFrameBuffer )
 
-      IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_MESSAGE )
-        CONOUT( "Mensagem recebida no subscribe" + CHR_CRLF )
-        CONOUT( oStompFrame:cBody + CHR_CRLF ) 
-      ELSE
-        IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
-          ::cErrorMessage := oStompFrame:cBody
-          CONOUT( "Erro recebido no subscribe" + CHR_CRLF )
+        IF ( !oStompFrame:isValid() )
+          ::oLogger:Error( "FRAME INVALIDO : {1}", { oStompFrame:build(.F.) } ) 
+          FOR i := 1 TO oStompFrame:countErrors()
+            ::oLogger:Error( '{1}', { oStompFrame:aErrors[i] } )
+          NEXT
+          BREAK
         ENDIF
-      ENDIF
+
+        IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_MESSAGE )
+          CONOUT( "Mensagem recebida no subscribe" + CHR_CRLF )
+          CONOUT( oStompFrame:cBody + CHR_CRLF ) 
+        ELSE
+          IF ( oStompFrame:cCommand == STOMP_SERVER_COMMAND_ERROR )
+            ::cErrorMessage := oStompFrame:getHeaderValue( STOMP_MESSAGE_HEADER ) + CHR_CRLF + oStompFrame:cBody
+            ::oLogger:Error( '{1}', { ::cErrorMessage } )
+          ENDIF
+        ENDIF
+
+      ENDDO
 
     ENDDO
-
-  ENDDO
+  ELSE
+    ::oLogger:Error("Failed to subscribe")
+  ENDIF
   RETURN ( nil )
 
 METHOD ack( cMessageId ) CLASS TStompClient

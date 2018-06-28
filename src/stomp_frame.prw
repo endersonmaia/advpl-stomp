@@ -7,6 +7,7 @@ CLASS TStompFrame
   DATA cBody
   DATA aErrors
   DATA aStompFrameTypes
+  DATA nSize
 
   // Validations
   METHOD validateCommand()
@@ -20,6 +21,7 @@ CLASS TStompFrame
   METHOD new() CONSTRUCTOR
   METHOD build(lCheck)
   METHOD parse( cStompFrame )
+  METHOD getSize()
 
   // Content
   METHOD setCommand( cCommand )
@@ -101,7 +103,7 @@ METHOD validateCommand() CLASS TStompFrame
   IF( ASCAN( ::aStompFrameTypes, { |c| UPPER(c) == UPPER( ::cCommand ) } ) > 0 )
     lReturn := .T.
   ELSE
-    ::addError( "Invalid command." )
+    ::addError( "Invalid command : " + ::cCommand )
   ENDIF
 
   RETURN ( lReturn )
@@ -139,7 +141,7 @@ METHOD validateHeader() CLASS TStompFrame
     IIF ( ::headerExists(STOMP_TRANSACTION_HEADER), lReturn := .T., )
   CASE ::cCOmmand == "MESSAGE"
     IIF ( ( ::headerExists( STOMP_DESTINATION_HEADER ) .AND. ::headerExists( STOMP_MESSAGE_ID_HEADER ) .AND. ::headerExists( STOMP_SUBSCRIPTION_HEADER ) ), lReturn := .T., )
-  CASE ::cCommand == "DISCONNECT"
+  OTHERWISE
     lReturn := .T.
   ENDCASE
 
@@ -152,7 +154,7 @@ METHOD validateBody() CLASS TStompFrame
 
   DO CASE
   CASE  ::cCommand == "SEND" .OR. ::cCommand == "MESSAGE"
-    lReturn := .T.
+    IIF( ( !Empty(::cBody) ), lReturn := .T., )
   CASE        ::cCommand == "SUBSCRIBE"   ;
         .OR.  ::cCommand == "UNSUBSCRIBE" ;
         .OR.  ::cCommand == "BEGIN"       ;
@@ -162,8 +164,9 @@ METHOD validateBody() CLASS TStompFrame
         .OR.  ::cCommand == "NACK"        ;
         .OR.  ::cCommand == "DISCONNECT"  ;
         .OR.  ::cCommand == "CONNECT"     ;
-        .OR.  ::cCommand == "STOMP"
-    IIF( ( Empty(::cBody) ), lReturn := .T., )
+        .OR.  ::cCommand == "STOMP"       ;
+        .OR.  ::cCommand == "ERROR"
+    lReturn := .T.
   ENDCASE
 
   IIF ( ( lReturn == .F. ), ::addError( "Missing required body for this " + ::cCommand + " frame." ), )
@@ -176,7 +179,7 @@ METHOD isValid() CLASS TStompFrame
 METHOD build(lCheck) CLASS TStompFrame
   LOCAL cStompFrame := "", i
 
-  IF !::isValid() .AND. lCheck != .F.
+  IF !::isValid() .AND. lCheck == .T.
     RETURN ( .F. )
   ENDIF
 
@@ -195,6 +198,8 @@ METHOD build(lCheck) CLASS TStompFrame
   // build BODY
   cStompFrame += ::cBody
   cStompFrame += CHR_NULL + CHR_CRLF
+
+  ::nSize := LEN( cStompFrame )
 
   RETURN ( cStompFrame )
 
@@ -269,3 +274,6 @@ METHOD prsExBd( cStompFrame ) CLASS TStompFrame
   cStompFrame := SUBSTR( cStompFrame, nLastPos + 2 , nLen )
 
   RETURN ( cBody )
+
+METHOD getSize() CLASS TStompFrame
+  RETURN ( ::nSize )
