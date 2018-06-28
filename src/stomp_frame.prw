@@ -52,6 +52,29 @@ METHOD new() CLASS TStompFrame
   ::aStompFrameTypes := STOMP_COMMANDS
   RETURN ( SELF )
 
+METHOD buildHeader( cName, cValue ) CLASS TStompFrame
+  LOCAL aReturn := {}
+
+  DO CASE
+  CASE ( ValType( cName ) == "C" )
+  CASE ( ValType( cName ) == "M" )
+    BREAK
+  OTHERWISE
+    //Throw( ErrorNew( "EStompHeaderInvalidType",,, ProcName(), "Invalid type for StompHeader:Name." ) )
+  END CASE
+
+  DO CASE
+  CASE ( ValType( cValue ) == "C" )
+  CASE ( ValType( cValue ) == "M" )
+    BREAK
+  OTHERWISE
+    //Throw( ErrorNew( "EStompHeaderInvalidType",,, ProcName(), "Invalid type for StompHeader:Value." ) )
+  END CASE
+
+  aReturn := { cName , cValue }
+
+  RETURN( aReturn )
+
 METHOD addHeader( cName, cValue ) CLASS TStompFrame
   AADD( ::aHeaders, ::buildHeader( cName, cValue ) )
   RETURN ( NIL )
@@ -86,7 +109,7 @@ METHOD validateCommand() CLASS TStompFrame
 METHOD headerExists( cHeaderName ) CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  IIF ( ASCAN( ::aHeaders, { |h| h:getName() == cHeaderName } ) > 0, lReturn := .T., )
+  IIF ( ASCAN( ::aHeaders, { |h| h[1] == cHeaderName } ) > 0, lReturn := .T., )
 
   RETURN ( lReturn )
 
@@ -94,7 +117,7 @@ METHOD getHeaderValue( cHeaderName ) CLASS TStompFrame
   LOCAL uReturn := nil, i
 
   FOR i := 1 TO ::countHeaders()
-    IIF ( (::aHeaders[i]:getName() == cHeaderName), uReturn := ::aHeaders[i]:getValue(),  )
+    IIF ( (::aHeaders[i][1] == cHeaderName), uReturn := ::aHeaders[i][2],  )
   NEXT
   RETURN ( uReturn )
 
@@ -163,7 +186,7 @@ METHOD build(lCheck) CLASS TStompFrame
   // build HEADERS
   IF (::countHeaders() > 0)
     FOR i := 1 TO ::countHeaders()
-      cStompFrame += ::aHeaders[i]:toString()
+      cStompFrame += ::aHeaders[i][1] + ":" + ::aHeaders[i][2]
       cStompFrame += CHR_CRLF
     NEXT
   ENDIF

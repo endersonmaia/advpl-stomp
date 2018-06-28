@@ -21,18 +21,18 @@ METHOD buildConnectFrame( cHost, cLogin, cPassCode ) CLASS TStompFrameBuilder
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_CONNECT )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ACCEPT_VERSION_HEADER, STOMP_ACCEPTED_VERSIONS ) )
+  oStompFrame:addHeader( STOMP_ACCEPT_VERSION_HEADER, STOMP_ACCEPTED_VERSIONS )
 
   IF ( ValType(cHost) == 'C' )
-    oStompFrame:addHeader( TStompFrameHeader():new( STOMP_HOST_HEADER, cHost) )
+    oStompFrame:addHeader( STOMP_HOST_HEADER, cHost)
   ENDIF
 
   IF ( ValType(cLogin) == 'C' )
-    oStompFrame:addHeader( TStompFrameHeader():new( STOMP_LOGIN_HEADER, cLogin) )
+    oStompFrame:addHeader( STOMP_LOGIN_HEADER, cLogin)
   ENDIF
 
   IF ( ValType(cPassCode) == 'C' )
-    oStompFrame:addHeader( TStompFrameHeader():new( STOMP_PASSCODE_HEADER, cPassCode) )
+    oStompFrame:addHeader( STOMP_PASSCODE_HEADER, cPassCode)
   ENDIF
 
   RETURN ( oStompFrame )
@@ -42,7 +42,7 @@ METHOD buildSendFrame( cDestination, cMessage ) CLASS TStompFrameBuilder
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_SEND )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, cDestination ) )
+  oStompFrame:addHeader( STOMP_DESTINATION_HEADER, cDestination )
   oStompFrame:setBody( cMessage )
 
   RETURN ( oStompFrame )
@@ -62,8 +62,8 @@ METHOD buildSubscribeFrame( cDestination ) CLASS TStompFrameBuilder
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_SUBSCRIBE )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cID ) )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_DESTINATION_HEADER, cDestination ) )
+  oStompFrame:addHeader( STOMP_ID_HEADER, cID )
+  oStompFrame:addHeader( STOMP_DESTINATION_HEADER, cDestination )
 
   RETURN ( oStompFrame )
 
@@ -72,7 +72,7 @@ METHOD buildAckFrame( cMessageId ) CLASS TStompFrameBuilder
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_ACK )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cMessageId ) )
+  oStompFrame:addHeader( STOMP_ID_HEADER, cMessageId )
 
   RETURN ( oStompFrame )
 
@@ -81,6 +81,6 @@ METHOD buildNackFrame( cMessageId ) CLASS TStompFrameBuilder
 
   oStompFrame := TStompFrame():new()
   oStompFrame:setCommand( STOMP_CLIENT_COMMAND_NACK )
-  oStompFrame:addHeader( TStompFrameHeader():new( STOMP_ID_HEADER, cMessageId ) )
+  oStompFrame:addHeader( STOMP_ID_HEADER, cMessageId )
 
   RETURN ( oStompFrame )

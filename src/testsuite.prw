@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include 'protheus.ch'
+#include 'totvs.ch'
 #include 'testsuite.ch'
 
 #define ANSI_CLEAR_SCREEN Chr( 27 ) + '[2J'
