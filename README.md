@@ -33,7 +33,7 @@ USER FUNCTION STOMP
 
     oStompClient:publish( "/queue/advpl", "First message from ADVPL!" )
 
-    oStompClient:subscribe( "/queue/hbstomp", "auto", , {|msg, oFrame| oLogger:Info("Mensagem : {1} {2}", { msg, oFrame:getHeaderValue("message-id") } ) } )
+    oStompClient:subscribe( "/queue/advpl-stomp", "auto", , {|msg, oFrame| oLogger:Info("Mensagem : {1} {2}", { msg, oFrame:getHeaderValue("message-id") } ) } )
 
     oStompClient:disconnect()
   ELSE
