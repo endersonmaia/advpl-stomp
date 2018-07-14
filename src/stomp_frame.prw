@@ -2,36 +2,32 @@
 
 CLASS TStompFrame
 
-  DATA cCommand INIT "" READONLY
-  DATA aHeaders INIT {} READONLY
-  DATA cBody INIT "" READONLY
-  DATA aErrors INIT {} READONLY
-
-  CLASSDATA aStompFrameTypes INIT { "SEND", "SUBSCRIBE", "UNSUBSCRIBE", "BEGIN", "COMMIT", "ABORT", "ACK", "NACK", "DISCONNECT", "CONNECT", "STOMP", "MESSAGE", "CONNECTED" }
+  DATA cCommand
+  DATA aHeaders
+  DATA cBody
+  DATA aErrors
+  DATA aStompFrameTypes
+  DATA nSize
 
   // Validations
   METHOD validateCommand()
   METHOD validateHeader()
   METHOD validateBody()
 
-  #ifdef __PROTHEUS__
-    #xtranslate parseExtractCommand( <x> ) => parseEC( <x> )
-    #xtranslate parseExtractHeaders( <x> ) => parseEH( <x> )
-    #xtranslate parseExtractBody( <x> ) => parseEB( <x> )
-  #endif
-  METHOD parseExtractCommand( cStompFrame )
-  METHOD parseExtractHeaders( cStompFrame )
-  METHOD parseExtractBody( cStompFrame )
+  METHOD prsExCmd( cStompFrame )
+  METHOD prsExHd( cStompFrame )
+  METHOD prsExBd( cStompFrame )
 
-  EXPORTED:
   METHOD new() CONSTRUCTOR
   METHOD build(lCheck)
   METHOD parse( cStompFrame )
+  METHOD getSize()
 
   // Content
   METHOD setCommand( cCommand )
   METHOD setBody( cBody )
-  METHOD addHeader( oStompFrameHeader )
+  METHOD buildHeader( cName, cValue )
+  METHOD addHeader( cName, cValue )
   METHOD removeAllHeaders()
   METHOD getHeaderValue( cHeaderName )
 
@@ -51,10 +47,38 @@ METHOD countErrors() CLASS TStompFrame
   RETURN ( LEN( ::aErrors ) )
 
 METHOD new() CLASS TStompFrame
-  RETURN SELF
+  ::aHeaders := {}
+  ::aErrors := {}
+  ::cCommand := ""
+  ::cBody := ""
+  ::aStompFrameTypes := STOMP_COMMANDS
+  RETURN ( SELF )
 
-METHOD addHeader( oStompFrameHeader ) CLASS TStompFrame
-  AADD( ::aHeaders, oStompFrameHeader )
+METHOD buildHeader( cName, cValue ) CLASS TStompFrame
+  LOCAL aReturn := {}
+
+  DO CASE
+  CASE ( ValType( cName ) == "C" )
+  CASE ( ValType( cName ) == "M" )
+    BREAK
+  OTHERWISE
+    //Throw( ErrorNew( "EStompHeaderInvalidType",,, ProcName(), "Invalid type for StompHeader:Name." ) )
+  END CASE
+
+  DO CASE
+  CASE ( ValType( cValue ) == "C" )
+  CASE ( ValType( cValue ) == "M" )
+    BREAK
+  OTHERWISE
+    //Throw( ErrorNew( "EStompHeaderInvalidType",,, ProcName(), "Invalid type for StompHeader:Value." ) )
+  END CASE
+
+  aReturn := { cName , cValue }
+
+  RETURN( aReturn )
+
+METHOD addHeader( cName, cValue ) CLASS TStompFrame
+  AADD( ::aHeaders, ::buildHeader( cName, cValue ) )
   RETURN ( NIL )
 
 METHOD addError( cError ) CLASS TStompFrame
@@ -62,20 +86,16 @@ METHOD addError( cError ) CLASS TStompFrame
   RETURN ( NIL )
 
 METHOD setCommand( cCommand ) CLASS TStompFrame
-
   ::cCommand := UPPER(cCommand)
-
   RETURN ( NIL )
 
 METHOD setBody( cBody ) CLASS TStompFrame
-
   ::cBody := cBody
-
   RETURN ( NIL )
 
 METHOD removeAllHeaders() CLASS TStompFrame
   ::aHeaders := ARRAY(0)
-  RETURN ( nil )
+  RETURN ( NIL )
 
 METHOD validateCommand() CLASS TStompFrame
   LOCAL lReturn := .F.
@@ -83,7 +103,7 @@ METHOD validateCommand() CLASS TStompFrame
   IF( ASCAN( ::aStompFrameTypes, { |c| UPPER(c) == UPPER( ::cCommand ) } ) > 0 )
     lReturn := .T.
   ELSE
-    ::addError( "Invalid command." )
+    ::addError( "Invalid command : " + ::cCommand )
   ENDIF
 
   RETURN ( lReturn )
@@ -91,15 +111,15 @@ METHOD validateCommand() CLASS TStompFrame
 METHOD headerExists( cHeaderName ) CLASS TStompFrame
   LOCAL lReturn := .F.
 
-  IIF ( ASCAN( ::aHeaders, { |h| h:getName() == cHeaderName } ) > 0, lReturn := .T., )
+  IIF ( ASCAN( ::aHeaders, { |h| h[1] == cHeaderName } ) > 0, lReturn := .T., )
 
   RETURN ( lReturn )
 
 METHOD getHeaderValue( cHeaderName ) CLASS TStompFrame
-  LOCAL uReturn := nil
+  LOCAL uReturn := nil, i
 
   FOR i := 1 TO ::countHeaders()
-    IIF ( (::aHeaders[i]:getName() == cHeaderName), uReturn := ::aHeaders[i]:getValue(),  )
+    IIF ( (::aHeaders[i][1] == cHeaderName), uReturn := ::aHeaders[i][2],  )
   NEXT
   RETURN ( uReturn )
 
@@ -114,14 +134,14 @@ METHOD validateHeader() CLASS TStompFrame
     IIF ( ::headerExists(STOMP_DESTINATION_HEADER), lReturn := .T., )
   CASE ::cCommand == "SUBSCRIBE"
     IIF ( ::headerExists(STOMP_DESTINATION_HEADER) .AND. ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
-    IIF ( lreturn == .T. .AND. ::headerExists(STOMP_ACK_HEADER) .AND. ASCAN( STOMP_ACK_MODES, ::getHeaderValue(STOMP_ACK_HEADER) ) = 0, lReturn := .F., )
+    IIF ( lReturn == .T. .AND. ::headerExists(STOMP_ACK_HEADER) .AND. ASCAN( STOMP_ACK_MODES, ::getHeaderValue(STOMP_ACK_HEADER) ) = 0, lReturn := .F., )
   CASE ::cCommand == "UNSUBSCRIBE" .OR. ::cCommand == "ACK" .OR. ::cCommand == "NACK"
     IIF ( ::headerExists(STOMP_ID_HEADER), lReturn := .T., )
   CASE ::cCommand == "BEGIN" .OR. ::cCommand == "COMMIT" .OR. ::cCommand == "ABORT"
     IIF ( ::headerExists(STOMP_TRANSACTION_HEADER), lReturn := .T., )
   CASE ::cCOmmand == "MESSAGE"
     IIF ( ( ::headerExists( STOMP_DESTINATION_HEADER ) .AND. ::headerExists( STOMP_MESSAGE_ID_HEADER ) .AND. ::headerExists( STOMP_SUBSCRIPTION_HEADER ) ), lReturn := .T., )
-  CASE ::cCommand == "DISCONNECT"
+  OTHERWISE
     lReturn := .T.
   ENDCASE
 
@@ -134,7 +154,7 @@ METHOD validateBody() CLASS TStompFrame
 
   DO CASE
   CASE  ::cCommand == "SEND" .OR. ::cCommand == "MESSAGE"
-    lReturn := .T.
+    IIF( ( !Empty(::cBody) ), lReturn := .T., )
   CASE        ::cCommand == "SUBSCRIBE"   ;
         .OR.  ::cCommand == "UNSUBSCRIBE" ;
         .OR.  ::cCommand == "BEGIN"       ;
@@ -144,8 +164,9 @@ METHOD validateBody() CLASS TStompFrame
         .OR.  ::cCommand == "NACK"        ;
         .OR.  ::cCommand == "DISCONNECT"  ;
         .OR.  ::cCommand == "CONNECT"     ;
-        .OR.  ::cCommand == "STOMP"
-    IIF( ( Empty(::cBody) ), lReturn := .T., )
+        .OR.  ::cCommand == "STOMP"       ;
+        .OR.  ::cCommand == "ERROR"
+    lReturn := .T.
   ENDCASE
 
   IIF ( ( lReturn == .F. ), ::addError( "Missing required body for this " + ::cCommand + " frame." ), )
@@ -155,10 +176,10 @@ METHOD validateBody() CLASS TStompFrame
 METHOD isValid() CLASS TStompFrame
   RETURN ( ::validateCommand() .AND. ::validateHeader() .AND. ::validateBody() )
 
-METHOD build() CLASS TStompFrame
+METHOD build(lCheck) CLASS TStompFrame
   LOCAL cStompFrame := "", i
 
-  IF !::isValid()
+  IF !::isValid() .AND. lCheck == .T.
     RETURN ( .F. )
   ENDIF
 
@@ -168,7 +189,7 @@ METHOD build() CLASS TStompFrame
   // build HEADERS
   IF (::countHeaders() > 0)
     FOR i := 1 TO ::countHeaders()
-      cStompFrame += ::aHeaders[i]:toString()
+      cStompFrame += ::aHeaders[i][1] + ":" + ::aHeaders[i][2]
       cStompFrame += CHR_CRLF
     NEXT
   ENDIF
@@ -178,15 +199,13 @@ METHOD build() CLASS TStompFrame
   cStompFrame += ::cBody
   cStompFrame += CHR_NULL + CHR_CRLF
 
+  ::nSize := LEN( cStompFrame )
+
   RETURN ( cStompFrame )
 
 METHOD parse( cStompFrame ) CLASS TStompFrame
   LOCAL nLen          := 0 ,  ;
         nLastPos      := 0 ,  ;
-        cHeader       := "",  ;
-        cHeaderName   := "",  ;
-        cHeaderValue  := "",  ;
-        oHeader            ,  ;
         oStompFrame
 
   // Cleaning cStompFrame from CRLF to LF only
@@ -194,13 +213,13 @@ METHOD parse( cStompFrame ) CLASS TStompFrame
 
   oStompFrame := TStompFrame():new()
 
-  oStompFrame:cCommand  := ::parseExtractCommand( @cStompFrame )
-  IIF ( ( oStompFrame:cCommand != STOMP_SERVER_COMMAND_ERROR ), oStompFrame:aHeaders := ::parseExtractHeaders( @cStompFrame ), )
-  oStompFrame:cBody     := ::parseExtractBody( @cStompFrame )
+  oStompFrame:cCommand  := ::prsExCmd( @cStompFrame )
+  oStompFrame:aHeaders := ::prsExHd( @cStompFrame )
+  oStompFrame:cBody     := ::prsExBd( @cStompFrame )
 
   RETURN ( oStompFrame )
 
-METHOD parseExtractCommand( cStompFrame ) CLASS TStompFrame
+METHOD prsExCmd( cStompFrame ) CLASS TStompFrame
   LOCAL nLen      := 0,   ;
         nLastPos  := 0,   ;
         cCommand  := ""
@@ -212,15 +231,14 @@ METHOD parseExtractCommand( cStompFrame ) CLASS TStompFrame
 
   RETURN ( cCommand )
 
-METHOD parseExtractHeaders( cStompFrame ) CLASS TStompFrame
+METHOD prsExHd( cStompFrame ) CLASS TStompFrame
   LOCAL nLen          := 0,   ;
         nLastPos      := 0,   ;
         cHeaders      := "",  ;
         cHeaderName   := "",  ;
         cHeaderValue  := "",  ;
         aHeaders      := {},  ;
-        i             := 0,   ;
-        oHeader
+        i             := 0
 
   nLen        := Len ( cStompFrame )
   nLastPos    := AT( CHR_LF+CHR_LF, cStompFrame )
@@ -233,7 +251,7 @@ METHOD parseExtractHeaders( cStompFrame ) CLASS TStompFrame
     cHeaderName   := LEFT( cHeaders, AT( ":", cHeaders ) - 1 )
     cHeaderValue  := SUBSTR( cHeaders, AT( ":", cHeaders ) + 1, AT( CHR_LF, cHeaders) - AT( ":", cHeaders ) - 1)
 
-    AADD( aHeaders, TStompFrameHeader():new( cHeaderName, cHeaderValue ) )
+    AADD( aHeaders, ::buildHeader( cHeaderName, cHeaderValue ) )
 
     cHeaders      := SUBSTR(  cHeaders, ;
                               Len( CHR_LF ) + Len( cHeaderName ) + Len( ":" ) + Len( cHeaderValue ) + Len( CHR_LF ), ;
@@ -245,7 +263,7 @@ METHOD parseExtractHeaders( cStompFrame ) CLASS TStompFrame
 
   RETURN ( aHeaders )
 
-METHOD parseExtractBody( cStompFrame ) CLASS TStompFrame
+METHOD prsExBd( cStompFrame ) CLASS TStompFrame
   LOCAL nLen          := 0,   ;
         nLastPos      := 0
 
@@ -256,3 +274,6 @@ METHOD parseExtractBody( cStompFrame ) CLASS TStompFrame
   cStompFrame := SUBSTR( cStompFrame, nLastPos + 2 , nLen )
 
   RETURN ( cBody )
+
+METHOD getSize() CLASS TStompFrame
+  RETURN ( ::nSize )
